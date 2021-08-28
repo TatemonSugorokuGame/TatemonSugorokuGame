@@ -5,6 +5,7 @@ using KoganeUnityLib;
 using SubmarineMirage.Base;
 using SubmarineMirage.Service;
 using SubmarineMirage.Task;
+using SubmarineMirage.Data;
 using SubmarineMirage.Audio;
 using SubmarineMirage.Scene;
 using SubmarineMirage.Utility;
@@ -14,6 +15,10 @@ namespace TatemonSugoroku.Scripts {
 
 
 	public class UITitle : SMStandardMonoBehaviour {
+		readonly SMAsyncCanceler _canceler = new SMAsyncCanceler();
+
+
+
 		protected override void StartAfterInitialize() {
 			var sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
 			var taskManager = SMServiceLocator.Resolve<SMTaskManager>();
@@ -63,6 +68,24 @@ namespace TatemonSugoroku.Scripts {
 					} );
 				} );
 			} );
+
+			ShowHelp().Forget();
+		}
+
+
+
+		async UniTask ShowHelp() {
+			var setting = SMServiceLocator.Resolve<SMAllDataManager>().Get<SettingDataManager>().Get();
+			var audioManager = SMServiceLocator.Resolve<SMAudioManager>();
+			if ( setting._isShowHelp )	{ return; }
+
+			await UTask.Delay( _canceler, 1000 );
+
+			audioManager.Play( SMSE.Decide ).Forget();
+			var sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
+			sceneManager.GetFSM<UISMScene>().ChangeState<UIHelpSMScene>().Forget();
+
+			await UTask.DontWait();
 		}
 	}
 }

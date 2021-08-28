@@ -75,6 +75,8 @@ namespace TatemonSugoroku.Scripts {
 		[SMShow] public bool  _isViewDebug;
 		/// <summary>遊戯情報一覧の内、読込中の遊戯情報の添字</summary>
 		[SMShow] public int _playDataIndex;
+		/// <summary>操作説明を表示したか？</summary>
+		[SMShow] public bool _isShowHelp;
 
 		///----------------------------------------------------------------------------------------------------
 		/// ● 作成、削除

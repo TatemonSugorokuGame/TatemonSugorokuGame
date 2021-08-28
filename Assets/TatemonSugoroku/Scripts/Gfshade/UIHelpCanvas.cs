@@ -5,6 +5,7 @@ using UnityEngine;
 using SubmarineMirage.Utility;
 using SubmarineMirage.Service;
 using SubmarineMirage.Data;
+using SubmarineMirage.Data.Save;
 using SubmarineMirage.Scene;
 using SubmarineMirage.Audio;
 using SubmarineMirage.Setting;
@@ -63,8 +64,12 @@ namespace TatemonSugoroku.Scripts
             });
 
             SMAudioManager audioManager = null;
+            SMAllDataManager dataManager = null;
+            SettingDataManager setting = null;
             UTask.Void( async () => {
                 audioManager = await SMServiceLocator.WaitResolve<SMAudioManager>();
+                dataManager = await SMServiceLocator.WaitResolve<SMAllDataManager>();
+                setting = dataManager.Get<SettingDataManager>();
             } );
 
             page.Subscribe(UpdateText);
@@ -81,8 +86,16 @@ namespace TatemonSugoroku.Scripts
 
             var sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
             _Close.OnClickAsObservable().Subscribe( _ => {
-                audioManager?.Play( SMSE.Decide ).Forget();
-                sceneManager.GetFSM<UISMScene>().ChangeState<UINoneSMScene>().Forget();
+                UTask.Void( async () => {
+                    audioManager?.Play( SMSE.Decide ).Forget();
+                    var data = setting.Get();
+                    if ( !data._isShowHelp ) {
+                        data._isShowHelp = true;
+                        await setting._saveEvent.Run( dataManager._asyncCancelerOnDispose );
+                    }
+                    await UTask.Delay( _canceler, 500 );
+                    sceneManager.GetFSM<UISMScene>().ChangeState<UINoneSMScene>().Forget();
+                } );
             } );
             _End.OnClickAsObservable().Subscribe( _ => {
                 UTask.Void( async () => {
