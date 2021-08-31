@@ -42,7 +42,7 @@ namespace TatemonSugoroku.Scripts {
 							case "ButtonFramework":
 								await audioManager.Play( SMSE.Decide );
 								Application.OpenURL(
-									"https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity" );
+									"https://freembbs.jpn.org/party/osiete.cgi?read=6460&ukey=0" );
 								break;
 
 							case "ButtonStart":
