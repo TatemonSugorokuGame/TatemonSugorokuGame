@@ -67,6 +67,8 @@ namespace TatemonSugoroku.Scripts {
 		[SMShow] public SMFrameRate _frameRate;
 		/// <summary>音楽の音量</summary>
 		[SMShow] public float _bgmVolume;
+		[SMShow] public float _bgsVolume;
+		[SMShow] public float _jingleVolume;
 		/// <summary>声音の音量</summary>
 		[SMShow] public float _voiceVolume;
 		/// <summary>効果音の音量</summary>
@@ -109,6 +111,7 @@ namespace TatemonSugoroku.Scripts {
 				// スマートフォン版、低クオリティに設定（動かない可能性がある為）
 				case SMPlatformType.Android:
 				case SMPlatformType.IOS:
+				case SMPlatformType.WebGL:
 					_screenSize = SMScreenSize._960X540;
 					_quality = SMQuality.Middle;
 					_frameRate = SMFrameRate._30;
@@ -116,8 +119,10 @@ namespace TatemonSugoroku.Scripts {
 			}
 
 			_bgmVolume = 1;
+			_bgsVolume = 1;
+			_jingleVolume = 1;
 			_voiceVolume = 1;
-			_seVolume = 1;
+			_seVolume = 0.5f;
 
 			_isViewDebug = SMDebugManager.IS_DEVELOP;
 
@@ -160,6 +165,8 @@ namespace TatemonSugoroku.Scripts {
 			var audioManager = SMServiceLocator.Resolve<SMAudioManager>();
 			AudioListener.volume = 1;
 			audioManager._bgmVolume = _bgmVolume;
+			audioManager._bgsVolume = _bgsVolume;
+			audioManager._jingleVolume = _jingleVolume;
 			audioManager._voiceVolume = _voiceVolume;
 			audioManager._seVolume = _seVolume;
 

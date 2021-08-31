@@ -30,6 +30,8 @@ namespace SubmarineMirage.Setting {
 			SMPlatformType.Android;
 #elif UNITY_IOS
 			SMPlatformType.IOS;
+#elif UNITY_WEBGL
+			SMPlatformType.WebGL;
 #endif
 
 
@@ -94,15 +96,15 @@ namespace SubmarineMirage.Setting {
 
 		/// <summary>アプリ情報の階層</summary>
 		public const string APPLICATION_DATA_PATH =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vQZjl0KQ3qdx1ghjDLczrLpmWQ11Ao75IdaSobLMoFHjuzhG4pTCX0bXvZgGl_P4-2fjLCdCbBKHaRE/pub?gid=1615869423&single=true&output=csv"
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vRVkJ8TzBf9AyYzB6vuRSby6PEJunNZ07I7pQHsmFcmTeUycw4gDqLSVnLWySXXIjO557nxg4RjIUQI/pub?gid=413443355&single=true&output=csv"
 			;
 		/// <summary>宣伝情報の階層</summary>
 		public const string CM_DATA_PATH =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vQZjl0KQ3qdx1ghjDLczrLpmWQ11Ao75IdaSobLMoFHjuzhG4pTCX0bXvZgGl_P4-2fjLCdCbBKHaRE/pub?gid=1475705626&single=true&output=csv"
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vRVkJ8TzBf9AyYzB6vuRSby6PEJunNZ07I7pQHsmFcmTeUycw4gDqLSVnLWySXXIjO557nxg4RjIUQI/pub?gid=997827546&single=true&output=csv"
 			;
 		/// <summary>アプリの宣伝情報の階層</summary>
 		public const string APPLICATION_CM_DATA_PATH =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vQZjl0KQ3qdx1ghjDLczrLpmWQ11Ao75IdaSobLMoFHjuzhG4pTCX0bXvZgGl_P4-2fjLCdCbBKHaRE/pub?gid=1057403382&single=true&output=csv"
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vRVkJ8TzBf9AyYzB6vuRSby6PEJunNZ07I7pQHsmFcmTeUycw4gDqLSVnLWySXXIjO557nxg4RjIUQI/pub?gid=1316977491&single=true&output=csv"
 			;
 
 

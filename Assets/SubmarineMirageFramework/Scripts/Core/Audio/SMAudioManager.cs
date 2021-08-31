@@ -67,6 +67,14 @@ namespace SubmarineMirage.Audio {
 			get => _bgm._settingVolume.Value;
 			set => _bgm._settingVolume.Value = value;
 		}
+		public float _bgsVolume {
+			get => _bgs._settingVolume.Value;
+			set => _bgs._settingVolume.Value = value;
+		}
+		public float _jingleVolume {
+			get => _jingle._settingVolume.Value;
+			set => _jingle._settingVolume.Value = value;
+		}
 		/// <summary>声音量へのアクセサ</summary>
 		public float _voiceVolume {
 			get => _voice._settingVolume.Value;
@@ -76,9 +84,6 @@ namespace SubmarineMirage.Audio {
 		public float _seVolume {
 			get => _se._settingVolume.Value;
 			set {
-				// SE設定は、共通で使用
-				_bgs._settingVolume.Value = value;
-				_jingle._settingVolume.Value = value;
 				_loopSE._settingVolume.Value = value;
 				_se._settingVolume.Value = value;
 			}
@@ -106,6 +111,19 @@ namespace SubmarineMirage.Audio {
 				{ typeof( SMVoice ),	new SMVoiceSource<SMVoice>( this ) },
 				{ typeof( SMLoopSE ),	new SMLoopSESource<SMLoopSE>( this ) },
 				{ typeof( SMSE ),		new SMSESource<SMSE>( this ) },
+			};
+
+			_defaultVolumes[typeof( SMBGM )] = new Dictionary<object, float> {
+				{ SMBGM.Game,		0.3f },
+				{ SMBGM.NightGame,	0.5f },
+				{ SMBGM.Result,		0.3f },
+				{ SMBGM.Title,		0.3f },
+			};
+			_defaultVolumes[typeof( SMBGS )] = new Dictionary<object, float> {
+				{ SMBGS.Daytime,	0.15f },
+				{ SMBGS.Evening,	0.15f },
+				{ SMBGS.Night,		0.2f },
+				{ SMBGS.Wind,		0.6f },
 			};
 
 			_disposables.AddFirst( () => {

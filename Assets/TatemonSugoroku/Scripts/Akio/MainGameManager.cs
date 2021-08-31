@@ -95,6 +95,7 @@ namespace TatemonSugoroku.Scripts.Akio
         private MotionModel motionModel;
         SMInputManager inputManager;
         PlayerInternalModel[] playerModels;
+        SMAudioManager audioManager;
 
 
 
@@ -238,7 +239,7 @@ namespace TatemonSugoroku.Scripts.Akio
             SMLog.Debug($"ゲーム開始", SMLogTag.Scene);
             //await UniTask.Delay(System.TimeSpan.FromSeconds(5), cancellationToken: ct);
 
-            var audioManager = await SMServiceLocator.WaitResolve<SMAudioManager>();
+            audioManager = await SMServiceLocator.WaitResolve<SMAudioManager>();
             await audioManager.Play( SMJingle.Start1 );
             await audioManager.Play( SMJingle.Start2 );
         }

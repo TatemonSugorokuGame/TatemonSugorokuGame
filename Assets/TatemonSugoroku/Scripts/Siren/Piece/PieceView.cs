@@ -160,6 +160,7 @@ namespace TatemonSugoroku.Scripts {
 		public void PlaceArrowPosition( int tileID ) {
 			Place( tileID );
 			gameObject.SetActive( true );
+			_audioManager.Play( SMSE.Place ).Forget();
 		}
 
 		public void Hide() {

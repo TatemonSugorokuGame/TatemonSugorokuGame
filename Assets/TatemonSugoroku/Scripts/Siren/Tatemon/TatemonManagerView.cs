@@ -25,8 +25,6 @@ namespace TatemonSugoroku.Scripts {
 			SMVoice.Wasshoi2,
 			SMVoice.Wasshoi3,
 			SMVoice.Wasshoi4,
-			SMVoice.Wasshoi5,
-			SMVoice.Wasshoi6,
 		};
 
 
@@ -93,7 +91,7 @@ namespace TatemonSugoroku.Scripts {
 			=> _views.SelectMany( pair => pair.Value );
 
 		public SMVoice GetRandomVoice() {
-			var i = UnityEngine.Random.Range( 0, 6 );
+			var i = UnityEngine.Random.Range( 0, VOICES.Count );
 			return VOICES[i];
 		}
 

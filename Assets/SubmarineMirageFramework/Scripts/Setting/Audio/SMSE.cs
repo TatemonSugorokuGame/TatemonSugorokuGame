@@ -14,10 +14,10 @@ namespace SubmarineMirage.Setting {
 		Dice,
 		DiceHit,
 		Firework,
+		Place,
 		Result,
 		Score,
 		Tatemon,
-		TatemonWind,
 		Title,
 		Walk,
 	}
