@@ -42,7 +42,27 @@ namespace TatemonSugoroku.Scripts
         private void SetExplanations()
         {
             foreach ( Transform t in _PageTop ) {
-                _pages.Add( t.gameObject );
+                if ( t.gameObject.name.Contains( "PC" ) ) {
+                    switch ( SMMainSetting.PLATFORM ) {
+                        case SMPlatformType.Windows:
+                        case SMPlatformType.MacOSX:
+                        case SMPlatformType.Linux:
+                        case SMPlatformType.WebGL:
+                            _pages.Add( t.gameObject );
+                            break;
+                    }
+
+                } else if ( t.gameObject.name.Contains( "Smartphone" ) ) {
+                    switch ( SMMainSetting.PLATFORM ) {
+                        case SMPlatformType.Android:
+                        case SMPlatformType.IOS:
+                            _pages.Add( t.gameObject );
+                            break;
+                    }
+
+                } else {
+                    _pages.Add( t.gameObject );
+                }
 			}
             _pages.ForEach( go => go.SetActive( false ) );
         }

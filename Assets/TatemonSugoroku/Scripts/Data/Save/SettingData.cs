@@ -96,13 +96,13 @@ namespace TatemonSugoroku.Scripts {
 */
 
 			_version = SMMainSetting.APPLICATION_VERSION;
-			_screenMode = SMScreenMode.Full;
 
 			switch ( SMMainSetting.PLATFORM ) {
 				// PC版、中クオリティに設定
 				case SMPlatformType.Windows:
 				case SMPlatformType.MacOSX:
 				case SMPlatformType.Linux:
+					_screenMode = SMScreenMode.Full;
 					_screenSize = SMScreenSize._1920X1080;
 					_quality = SMQuality.VeryHigh;
 					_frameRate = SMFrameRate._60;
@@ -112,6 +112,7 @@ namespace TatemonSugoroku.Scripts {
 				case SMPlatformType.Android:
 				case SMPlatformType.IOS:
 				case SMPlatformType.WebGL:
+					_screenMode = SMScreenMode.Window;
 					_screenSize = SMScreenSize._960X540;
 					_quality = SMQuality.Middle;
 					_frameRate = SMFrameRate._30;
