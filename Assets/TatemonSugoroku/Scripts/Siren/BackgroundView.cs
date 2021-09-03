@@ -34,7 +34,7 @@ namespace TatemonSugoroku.Scripts {
 			var day = FindObjectOfType<DayView>();
 			day._state.Subscribe( state => ChangeImage( state ).Forget() );
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_canceler.Dispose();
 			} );
 		}

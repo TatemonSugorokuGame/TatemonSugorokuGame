@@ -42,6 +42,8 @@ namespace TatemonSugoroku.Scripts
         private void SetExplanations()
         {
             foreach ( Transform t in _PageTop ) {
+                t.gameObject.SetActive( false );
+
                 if ( t.gameObject.name.Contains( "PC" ) ) {
                     switch ( SMMainSetting.PLATFORM ) {
                         case SMPlatformType.Windows:
@@ -64,7 +66,6 @@ namespace TatemonSugoroku.Scripts
                     _pages.Add( t.gameObject );
                 }
 			}
-            _pages.ForEach( go => go.SetActive( false ) );
         }
 
         private void Awake()

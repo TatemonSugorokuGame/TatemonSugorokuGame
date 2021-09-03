@@ -69,7 +69,7 @@ namespace TatemonSugoroku.Scripts {
 			.SetLoops( -1, LoopType.Yoyo )
 			.Play();
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_colorTween?.Kill();
 			} );
 		}

@@ -37,7 +37,7 @@ namespace TatemonSugoroku.Scripts {
 				_audioManager = await SMServiceLocator.WaitResolve<SMAudioManager>();
 			} );
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_canceler.Dispose();
 			} );
 		}
@@ -75,6 +75,10 @@ namespace TatemonSugoroku.Scripts {
 				var camera = Camera.main?.transform;
 				if ( camera == null ) { return; }
 
+				transform.localScale = Vector3.zero;
+
+				await UTask.Delay( _canceler, Random.Range( 1000, 5000 ) );
+
 				var position = camera.position + camera.forward * 20;
 				position += camera.rotation * new Vector3(
 					Random.Range( -10, 10 ),
@@ -83,11 +87,8 @@ namespace TatemonSugoroku.Scripts {
 				);
 				transform.position = position;
 				transform.rotation = camera.rotation;
-				transform.localScale = Vector3.zero;
+
 				_renderer.material.color = Color.white;
-
-				await UTask.Delay( _canceler, Random.Range( 1000, 5000 ) );
-
 				_audioManager.Play( SMSE.Firework ).Forget();
 
 				await transform

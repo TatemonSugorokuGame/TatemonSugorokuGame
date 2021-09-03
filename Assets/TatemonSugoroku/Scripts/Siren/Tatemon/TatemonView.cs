@@ -69,7 +69,7 @@ namespace TatemonSugoroku.Scripts {
 			_state = TatemonState.Place;
 			ChangeState( TatemonState.None );
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_canceler.Dispose();
 			} );
 

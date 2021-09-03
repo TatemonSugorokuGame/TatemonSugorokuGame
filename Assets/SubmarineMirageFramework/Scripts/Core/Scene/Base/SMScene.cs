@@ -118,7 +118,7 @@ namespace SubmarineMirage.Scene {
 			} );
 
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_taskMarkers?.Dispose();
 				_createBehavioursEvent.Dispose();
 

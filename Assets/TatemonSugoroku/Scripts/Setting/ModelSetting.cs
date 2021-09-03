@@ -19,7 +19,7 @@ namespace TatemonSugoroku.Scripts.Setting {
 		/// ● コンストラクタ
 		/// </summary>
 		public ModelSetting() {
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_registerModels.Clear();
 			} );
 

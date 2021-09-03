@@ -62,7 +62,7 @@ namespace SubmarineMirage.UI {
 
 			Out( 10000 ).Forget();
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_fadeCanceler.Dispose();
 				_image.gameObject.Destroy();
 			} );

@@ -91,7 +91,7 @@ namespace TatemonSugoroku.Scripts {
 			} );
 
 
-			_disposables.AddLast( () => {
+			_disposables.AddFirst( () => {
 				_currentData?.Dispose();
 
 				_loader = null;
