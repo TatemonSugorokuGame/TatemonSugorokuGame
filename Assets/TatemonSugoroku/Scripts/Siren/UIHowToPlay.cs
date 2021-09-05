@@ -20,5 +20,9 @@ namespace TatemonSugoroku.Scripts {
 				sceneManager.GetFSM<UISMScene>().ChangeState<UIHelpSMScene>().Forget();
 			} );
 		}
+
+		public void Hide() {
+			gameObject.SetActive( false );
+		}
 	}
 }

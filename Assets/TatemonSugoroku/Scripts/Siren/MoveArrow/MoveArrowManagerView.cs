@@ -2,10 +2,15 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using KoganeUnityLib;
 using SubmarineMirage.Base;
+using SubmarineMirage.Service;
+using SubmarineMirage.Audio;
 using SubmarineMirage.Extension;
+using SubmarineMirage.Utility;
+using SubmarineMirage.Setting;
 using TatemonSugoroku.Scripts.Akio;
 namespace TatemonSugoroku.Scripts {
 
@@ -43,6 +48,10 @@ namespace TatemonSugoroku.Scripts {
 		public Color _color { get; private set; }
 		Tween _colorTween { get; set; }
 
+		bool _isActive { get; set; }
+
+		SMAudioManager _audioManager { get; set; }
+
 
 
 		void Start() {
@@ -72,6 +81,10 @@ namespace TatemonSugoroku.Scripts {
 			_disposables.AddFirst( () => {
 				_colorTween?.Kill();
 			} );
+
+			UTask.Void( async () => {
+				_audioManager = await SMServiceLocator.WaitResolve<SMAudioManager>();
+			} );
 		}
 
 
@@ -84,7 +97,11 @@ namespace TatemonSugoroku.Scripts {
 		public void Place( int playerID, int tileID,
 							IEnumerable< KeyValuePair<MoveArrowType, MotionStatus> > arrowDatas
 		) {
+			_audioManager.Play( SMSE.Place ).Forget();
+
 			Hide();
+			_isActive = true;
+
 			arrowDatas.ForEach( pair => {
 				var type = pair.Key;
 				var state = pair.Value;
@@ -94,12 +111,13 @@ namespace TatemonSugoroku.Scripts {
 				var v = GetView( type );
 				v.Place( data );
 			} );
-			_pieceManager.PlaceArrowPosition( playerID, tileID );
+
+			_pieceManager.Move( playerID, tileID ).Forget();
 		}
 
 		public void Hide() {
+			_isActive = false;
 			_views.ForEach( pair => pair.Value.Hide() );
-			_pieceManager.HideDummies();
 		}
 	}
 }

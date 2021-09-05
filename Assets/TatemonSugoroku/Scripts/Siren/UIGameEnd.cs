@@ -19,6 +19,10 @@ namespace TatemonSugoroku.Scripts {
 
 		public void SetActive( bool isActive ) {
 			_group.alpha = isActive ? 1 : 0;
+
+			if ( !isActive )	{ return; }
+			var uiHowToPlay = FindObjectOfType<UIHowToPlay>();
+			uiHowToPlay.Hide();
 		}
 	}
 }

@@ -112,7 +112,7 @@ namespace TatemonSugoroku.Scripts {
 				case SMPlatformType.Android:
 				case SMPlatformType.IOS:
 				case SMPlatformType.WebGL:
-					_screenMode = SMScreenMode.Window;
+					_screenMode = SMScreenMode.Full;
 					_screenSize = SMScreenSize._960X540;
 					_quality = SMQuality.Middle;
 					_frameRate = SMFrameRate._30;

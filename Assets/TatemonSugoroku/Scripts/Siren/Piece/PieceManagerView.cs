@@ -78,6 +78,11 @@ namespace TatemonSugoroku.Scripts {
 			await v.Move( tilePosition );
 		}
 
+		public async UniTask WaitMoves() {
+			await _views.Select( v => v.WaitMove() );
+			await _dummyViews.Select( v => v.WaitMove() );
+		}
+
 
 
 		public void Place( int playerID, int tileID ) {
@@ -92,9 +97,10 @@ namespace TatemonSugoroku.Scripts {
 
 
 
-		public void PlaceArrowPosition( int playerID, int tileID ) {
+		public void PlaceDummy( int playerID ) {
+			var tileID = GetView( ( PlayerType )playerID )._tileID;
 			var v = GetDummyView( ( PlayerType )playerID );
-			v.PlaceArrowPosition( tileID );
+			v.Show( tileID );
 		}
 
 		public void HideDummies() {

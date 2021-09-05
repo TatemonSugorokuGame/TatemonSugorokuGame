@@ -177,8 +177,11 @@ namespace TatemonSugoroku.Scripts.Akio
 
             // 「そして、オレが勝者となる」
             List<int> scores = playerModels.Select(p => p.Score).ToList();
-            int winner = Utility.MaxIndex(scores);
-            await _ResultUI.WaitForClick(scores, winner, ct);
+            int winnerID = 2;
+            if      ( scores[0] > scores[1] )   { winnerID = 0; }
+            else if ( scores[0] < scores[1] )   { winnerID = 1; }
+            else                                { winnerID = 2; }
+            await _ResultUI.WaitForClick(scores, winnerID, ct);
         }
 
         private async UniTask<bool> DoPlayerTurn(int turnIndex, int playerId, CancellationToken ct)
@@ -320,6 +323,8 @@ namespace TatemonSugoroku.Scripts.Akio
                     .AddTo(movementDisposables);
                 */
 
+                _PieceManager.PlaceDummy( playerId );
+
                 // まず(矢印方向, 矢印状態)のぺあにおいて変化が全部送られてくるストリームをつくる
                 var arrowUp = motionModel.MotionStatusUp.Select(status => new KeyValuePair<MoveArrowType, MotionStatus>(MoveArrowType.Up, status));
                 var arrowRight = motionModel.MotionStatusRight.Select(status => new KeyValuePair<MoveArrowType, MotionStatus>(MoveArrowType.Right, status));
@@ -352,6 +357,7 @@ namespace TatemonSugoroku.Scripts.Akio
                 pTurn.TileId = motions.Last();
                 HideArrows();
             }
+            await _PieceManager.WaitMoves();
 
             // ルートを塗る
             while (motions.Count > 0)
@@ -368,7 +374,7 @@ namespace TatemonSugoroku.Scripts.Akio
                 // 塗る
                 _TileManager.ChangeArea(tileId, playerId);
 
-                await _PieceManager.Move(playerId, pTurn.TileId);
+                await UniTask.Delay( 50, cancellationToken: ct );
             }
 
             return true;
@@ -377,6 +383,7 @@ namespace TatemonSugoroku.Scripts.Akio
         private void HideArrows()
         {
             _MoveArrowManager.Hide();
+            _PieceManager.HideDummies();
             _UI.HideWalkRemaining();
         }
 

@@ -213,6 +213,7 @@ MonoBehaviour:
   _Sprites:
   - {fileID: 21300000, guid: 68fedc0bf1d2695448cbf1468340920d, type: 3}
   - {fileID: 21300000, guid: cbbece5b116a4ac4b86d6850615a818f, type: 3}
+  - {fileID: 21300000, guid: 73604586cef9ce54e9054bad5c359cfc, type: 3}
 --- !u!1 &4503214748196008314
 GameObject:
   m_ObjectHideFlags: 0

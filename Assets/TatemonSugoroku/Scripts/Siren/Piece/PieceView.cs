@@ -1,4 +1,6 @@
 //#define TestPiece
+using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -6,6 +8,7 @@ using KoganeUnityLib;
 using SubmarineMirage.Base;
 using SubmarineMirage.Service;
 using SubmarineMirage.Audio;
+using SubmarineMirage.Extension;
 using SubmarineMirage.Utility;
 using SubmarineMirage.Setting;
 using SubmarineMirage.Debug;
@@ -25,7 +28,6 @@ namespace TatemonSugoroku.Scripts {
 
 		[SerializeField] Vector3 _offset = new Vector3( 0, 0.5f, 0 );
 		[SerializeField] float _duration = 5;
-		readonly SMAsyncCanceler _canceler = new SMAsyncCanceler();
 
 		PieceType _type { get; set; }
 		/// <summary>プレイヤーのタイプ</summary>
@@ -35,11 +37,15 @@ namespace TatemonSugoroku.Scripts {
 		public int _tileID { get; private set; }
 		/// <summary>コマが配置されている、タイル位置</summary>
 		public Vector2Int _tilePosition { get; private set; }
+		readonly LinkedList<int> _moveTileIDs = new LinkedList<int>();
 
 		public bool _isMoving { get; private set; }
 
 		SMAudioManager _audioManager { get; set; }
 		float _moveSESecond { get; set; }
+
+		readonly SMAsyncCanceler _canceler = new SMAsyncCanceler();
+
 
 
 		public void Setup( PieceType type, PlayerType playerType ) {
@@ -69,7 +75,9 @@ namespace TatemonSugoroku.Scripts {
 			}
 
 			_disposables.AddFirst( () => {
+				_moveTileIDs.Clear();
 				_canceler.Dispose();
+				_isMoving = false;
 			} );
 
 			UTask.Void( async () => {
@@ -95,44 +103,57 @@ namespace TatemonSugoroku.Scripts {
 		}
 
 		public async UniTask Move( Vector2Int tilePosition ) {
-			_canceler.Cancel();
+			var tileID = TileManagerView.ToID( tilePosition );
+			_moveTileIDs.Enqueue( tileID );
 
-			_tilePosition = tilePosition;
-/*
-// tileIDで、値をClampできないので、コメント
-			_tilePosition = new Vector2Int(
-				Mathf.Clamp( _tilePosition.x, TileManagerView.MIN_SIZE.x, MAX_SIZE.y ),
-				Mathf.Clamp( _tilePosition.y, TileManagerView.MIN_SIZE.y, MAX_SIZE.y )
-			);
-*/
-			_tileID = TileManagerView.ToID( _tilePosition );
+			await UpdateMove();
+		}
 
-			var targetRealPosition = TileManagerView.ToRealPosition( _tilePosition ) + _offset;
-			var distance = Vector3.Distance( targetRealPosition, transform.position );
-			var jumpCount = Mathf.RoundToInt( distance ) * 3;
-			var duration = distance / 2;
-
-			_particles.ForEach( p => p.gameObject.SetActive( true ) );
-
-			if ( _moveSESecond < Time.time ) {
-				_audioManager.Play( SMSE.Walk ).Forget();
-				_moveSESecond = Time.time + 2;
+		async UniTask UpdateMove() {
+			if ( _isMoving ) {
+				await WaitMove();
+				return;
 			}
 
 			try {
 				_isMoving = true;
-				await transform
-					.DOJump( targetRealPosition, 0.2f, jumpCount, duration )
-					.SetEase( Ease.Linear )
-					.Play()
-					.ToUniTask( _canceler );
-			} finally {
-				_isMoving = false;
-			}
-			transform.position = targetRealPosition;
+				_particles.ForEach( p => p.gameObject.SetActive( true ) );
 
-			_particles.ForEach( p => p.gameObject.SetActive( false ) );
+				while ( !_moveTileIDs.IsEmpty() ) {
+					var lastTileID = _tileID;
+					_tileID = _moveTileIDs.Dequeue();
+					_tilePosition = TileManagerView.ToTilePosition( _tileID );
+
+					if ( lastTileID != _tileID && _moveSESecond < Time.time ) {
+						_audioManager.Play( SMSE.Walk ).Forget();
+// TODO : SMSE.Walkの秒数を手打ちしてる・・・
+						_moveSESecond = Time.time + 1.515f;
+					}
+
+					var targetRealPosition = TileManagerView.ToRealPosition( _tilePosition ) + _offset;
+					var distance = Vector3.Distance( targetRealPosition, transform.position );
+					var jumpCount = Mathf.RoundToInt( distance ) * 2;
+					var duration = distance / 4;
+
+					await transform
+						.DOJump( targetRealPosition, 0.2f, jumpCount, duration )
+						.SetEase( Ease.Linear )
+						.Play()
+						.ToUniTask( _canceler );
+					transform.position = targetRealPosition;
+				}
+
+			} finally {
+				if ( !_isDispose ) {
+					_moveTileIDs.Clear();
+					_particles.ForEach( p => p.gameObject.SetActive( false ) );
+					_isMoving = false;
+				}
+			}
 		}
+
+		public UniTask WaitMove()
+			=> UTask.WaitWhile( _canceler, () => _isMoving );
 
 
 
@@ -143,13 +164,6 @@ namespace TatemonSugoroku.Scripts {
 			_canceler.Cancel();
 
 			_tilePosition = tilePosition;
-/*
-// tileIDで、値をClampできないので、コメント
-			_tilePosition = new Vector2Int(
-				Mathf.Clamp( _tilePosition.x, TileManagerView.MIN_SIZE.x, MAX_SIZE.y ),
-				Mathf.Clamp( _tilePosition.y, TileManagerView.MIN_SIZE.y, MAX_SIZE.y )
-			);
-*/
 			_tileID = TileManagerView.ToID( _tilePosition );
 
 			transform.position = TileManagerView.ToRealPosition( _tilePosition ) + _offset;
@@ -157,10 +171,9 @@ namespace TatemonSugoroku.Scripts {
 
 
 
-		public void PlaceArrowPosition( int tileID ) {
+		public void Show( int tileID ) {
 			Place( tileID );
 			gameObject.SetActive( true );
-			_audioManager.Play( SMSE.Place ).Forget();
 		}
 
 		public void Hide() {

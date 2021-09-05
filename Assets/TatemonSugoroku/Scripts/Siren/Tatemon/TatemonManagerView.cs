@@ -126,6 +126,11 @@ namespace TatemonSugoroku.Scripts {
 				) );
 			}
 
+			_views
+				.SelectMany( pair => pair.Value )
+				.Where( v => v._tilePosition == tilePosition )
+				.ForEach( v => v.ChangeState( TatemonState.None ) );
+
 			var m = GetView( type, turnID );
 			_turnCounts[type] += 1;
 
