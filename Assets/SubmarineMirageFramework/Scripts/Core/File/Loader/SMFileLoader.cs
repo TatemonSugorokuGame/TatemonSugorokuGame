@@ -15,6 +15,7 @@ namespace SubmarineMirage.File {
 	using Service;
 	using Data;
 	using Data.Raw;
+	using Network;
 	using Extension;
 	using Utility;
 	using Setting;
@@ -305,7 +306,7 @@ namespace SubmarineMirage.File {
 			switch ( location ) {
 				// サーバー通信読込の場合、使用希望か、接続切れか、ダウンロード済キャッシュが最新の場合
 				case SMFileLocation.Server:
-					return isWantUseCache || !_networkManager._isConnecting || !_setting._isRequestUpdateServer;
+					return isWantUseCache || !_networkManager._isConnect || !_setting._isRequestUpdateServer;
 
 				// それ以外の場合、希望通りに可能
 				default:

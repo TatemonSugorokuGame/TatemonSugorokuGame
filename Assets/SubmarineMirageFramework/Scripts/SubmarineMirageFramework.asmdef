@@ -8,6 +8,10 @@
         "UniTask.DOTween",
         "KoganeUnityLib",
         "GameDevWare.Serialization",
+        "PhotonChat",
+        "PhotonRealtime",
+        "PhotonUnityNetworking",
+        "PhotonUnityNetworking.Utilities",
         "BuildBaseSMLog"
     ],
     "includePlatforms": [],

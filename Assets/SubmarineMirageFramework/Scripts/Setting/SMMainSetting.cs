@@ -108,10 +108,12 @@ namespace SubmarineMirage.Setting {
 			;
 
 
-
 		/// <summary>音のリソース読込の階層</summary>
 		public const string Audio_RESOURCE_PATH = "Audio";
 
+
+		/// <summary>最大プレイヤー数</summary>
+		public const int MAX_PLAYERS = 2;
 
 
 		/// <summary>商品版（保存）</summary>

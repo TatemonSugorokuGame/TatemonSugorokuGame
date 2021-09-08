@@ -18,6 +18,7 @@ namespace SubmarineMirage {
 	using Audio;
 	using UI;
 	using Scene;
+	using Network;
 	using Extension;
 	using Utility;
 	using Setting;
