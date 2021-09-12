@@ -19,6 +19,12 @@ namespace TatemonSugoroku.Scripts {
 
 
 
+		void Start() {
+			_disposables.AddFirst( () => {
+				_canceler.Dispose();
+			} );
+		}
+
 		protected override void StartAfterInitialize() {
 			var sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
 			var taskManager = SMServiceLocator.Resolve<SMTaskManager>();
@@ -47,7 +53,7 @@ namespace TatemonSugoroku.Scripts {
 
 							case "ButtonStart":
 								await audioManager.Play( SMSE.Title );
-								sceneManager.GetFSM<MainSMScene>().ChangeState<GameSMScene>().Forget();
+								sceneManager.GetFSM<MainSMScene>().ChangeState<NetworkSMScene>().Forget();
 								break;
 
 							case "ButtonHelp":

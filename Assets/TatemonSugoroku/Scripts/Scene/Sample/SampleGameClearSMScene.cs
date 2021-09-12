@@ -27,7 +27,7 @@ namespace Sample {
 				// 勝敗をセーブ
 				var allDataManager = SMServiceLocator.Resolve<SMAllDataManager>();
 				var playDatas = allDataManager.Get<PlayDataManager>();
-				playDatas._currentData._winCount++;
+//				playDatas._currentData._winCount++;
 				await playDatas.SaveCurrentData();
 
 				await UTask.DontWait();

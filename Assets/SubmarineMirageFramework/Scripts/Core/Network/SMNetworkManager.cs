@@ -28,14 +28,14 @@ namespace SubmarineMirage.Network {
 
 
 		/// <summary>実行型</summary>
-		public override SMTaskRunType _type => SMTaskRunType.Sequential;
+		[SMShowLine] public override SMTaskRunType _type => SMTaskRunType.Sequential;
 
 		/// <summary>接続中か？</summary>
-		public bool _isConnect	{ get; private set; }
+		[SMShowLine] public bool _isConnect	{ get; private set; }
 		/// <summary>安定接続か？</summary>
 		public readonly ReactiveProperty<bool> _isStableConnect = new ReactiveProperty<bool>();
 
-		public ISMGameServer _gameServer { get; private set; }
+		[SMShow] public ISMGameServer _gameServer { get; private set; }
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除

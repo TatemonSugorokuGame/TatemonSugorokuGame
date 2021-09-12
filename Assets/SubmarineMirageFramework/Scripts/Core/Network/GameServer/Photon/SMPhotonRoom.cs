@@ -17,22 +17,25 @@ namespace SubmarineMirage.Network {
 	public class SMPhotonRoom : SMGameServerRoom {
 		const string PASSWORD_SPLIT_TEXT = ":password:";
 
-		protected override string _wrapText => PASSWORD_SPLIT_TEXT;
+		[SMShow] protected override string _wrapText => PASSWORD_SPLIT_TEXT;
 
 
 
 		public SMPhotonRoom( string name, string password, int maxPlayerCount )
-			: base( name, password, maxPlayerCount
-		) {}
+			: base( name, password, maxPlayerCount )
+		{}
 
-		public SMPhotonRoom( RoomInfo room ) {
-			var ns = room.Name.Split( PASSWORD_SPLIT_TEXT );
-			_name = ns[0];
-			if ( ns.Length == 2 )	{ _password = ns[1]; }
+		public SMPhotonRoom( RoomInfo room ) : base() {
+			var ss = ToNameAndPassword( room.Name );
+			_name = ss[0];
+			_password = ss[1];
 
 			_playerCount = room.PlayerCount;
 			_maxPlayerCount = room.MaxPlayers;
-			
+
+			_isActive =
+				!room.RemovedFromList &&
+				_playerCount != _maxPlayerCount;
 		}
 
 		public override void Dispose() {
@@ -40,8 +43,29 @@ namespace SubmarineMirage.Network {
 
 
 
+		public bool IsEqual( string token ) {
+			var ss = ToNameAndPassword( token );
+			var name = ss[0];
+			var password = ss[1];
+			return _name == name && _password == password;
+		}
+
+		public override bool IsEqualPassword( string password ) {
+			password = password ?? string.Empty;
+			return _password == password;
+		}
+
+
+
 		public override string ToToken()
 			=> $"{_name}{PASSWORD_SPLIT_TEXT}{_password}";
+
+		public static string[] ToNameAndPassword( string token ) {
+			var ns = token.Split( PASSWORD_SPLIT_TEXT );
+			var name = ns[0];
+			var password = ns.Length == 2 ? ns[1] : string.Empty;
+			return new string[] { name, password };
+		}
 	}
 }
 #endif

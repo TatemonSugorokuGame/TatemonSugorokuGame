@@ -17,7 +17,7 @@ namespace SubmarineMirage.Network {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		public abstract SMGameServerType _type	{ get; }
+		[SMShow] public abstract SMGameServerType _type	{ get; }
 
 		protected override Type _disconnectStateType => typeof( DisconnectSMPhotonMasterState );
 

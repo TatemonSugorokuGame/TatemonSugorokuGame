@@ -4,9 +4,11 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage.Network {
 	using System;
+	using System.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 	using Cysharp.Threading.Tasks;
@@ -14,7 +16,9 @@ namespace SubmarineMirage.Network {
 	using Photon.Realtime;
 	using Photon.Pun;
 	using KoganeUnityLib;
+	using Service;
 	using FSM;
+	using Extension;
 	using Utility;
 	using Setting;
 	using Debug;
@@ -27,38 +31,45 @@ namespace SubmarineMirage.Network {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		public SMFSM _masterFSM	{ get; private set; }
-		public SMFSM _roomFSM	{ get; private set; }
+		[SMShow] public SMFSM _masterFSM	{ get; private set; }
+		[SMShow] public SMFSM _roomFSM	{ get; private set; }
 		public SMPhotonMasterState _masterState	=> _masterFSM._state as SMPhotonMasterState;
 		public SMPhotonRoomState _roomState		=> _roomFSM._state as SMPhotonRoomState;
 
 		/// <summary>接続の型</summary>
-		public SMGameServerType _type => _masterState?._type ?? SMGameServerType.Disconnect;
+		[SMShow] public SMGameServerType _type => _masterState?._type ?? SMGameServerType.Disconnect;
 
 		/// <summary>プレイヤー名</summary>
-		public string _playerName {
+		[SMShow] public string _playerName {
 			get => PhotonNetwork.NickName;
-			set => PhotonNetwork.NickName = value;
+			private set => PhotonNetwork.NickName = value;
 		}
 
 		/// <summary>プレイヤー数のイベント</summary>
 		public ReactiveProperty<int> _playerCountEvent	{ get; private set; } = new ReactiveProperty<int>();
+		/// <summary>現在の部屋のイベント</summary>
+		public Subject<SMGameServerRoom> _currentRoomEvent { get; private set; }
+			= new Subject<SMGameServerRoom>();
 		/// <summary>部屋一覧のイベント</summary>
-		public ReactiveProperty< List<SMGameServerRoom> > _roomsEvent	{ get; private set; }
-			= new ReactiveProperty< List<SMGameServerRoom> >();
+		public Subject< List<SMGameServerRoom> > _roomsEvent	{ get; private set; }
+			= new Subject< List<SMGameServerRoom> >();
 		/// <summary>失敗のイベント</summary>
-		public ReactiveProperty<string> _errorEvent		{ get; private set; } = new ReactiveProperty<string>();
+		public Subject<string> _errorEvent		{ get; private set; } = new Subject<string>();
 
 		/// <summary>全て接続完了か？</summary>
-		public bool _isConnected => _roomState._status == SMGameServerStatus.Connect;
+		[SMShow] public bool _isConnect =>
+			_roomState._status == SMGameServerStatus.Connect &&
+			PhotonNetwork.IsConnectedAndReady;
 		/// <summary>サーバーか？</summary>
-		public bool _isServer => PhotonNetwork.IsMasterClient;	// Photonの場合、マスタークライアントか？
+		[SMShow] public bool _isServer => PhotonNetwork.IsMasterClient;	// Photonの場合、マスタークライアントか？
 		/// <summary>活動中か？</summary>
-		public bool _isActive {
+		[SMShow] public bool _isActive {
 			// Photonの場合、RPC送信を実行中か？
 			get => PhotonNetwork.IsMessageQueueRunning;
 			set => PhotonNetwork.IsMessageQueueRunning = value;
 		}
+
+		SMDisplayLog _displayLog { get; set; }
 
 		readonly SMAsyncCanceler _canceler = new SMAsyncCanceler();
 
@@ -69,16 +80,14 @@ namespace SubmarineMirage.Network {
 			var go = new GameObject( nameof( SMPhotonManager ) );
 			go.DontDestroyOnLoad();
 			var photonObject = go.AddComponent<SMPhotonManager>();
-
+#if TestNetwork
 			SMLog.Debug( $"作成 : {nameof( SMPhotonManager )}", SMLogTag.Server );
-
+#endif
 			return photonObject;
 		}
 
 		protected override void Awake() {
 			base.Awake();
-
-			_playerName = $"プレイヤー{UnityEngine.Random.Range( 0, 99999999 )}";
 
 			var fsm = SMFSM.Generate(
 				this,
@@ -104,6 +113,13 @@ namespace SubmarineMirage.Network {
 			_masterFSM = fsm.GetFSM<SMPhotonMasterState>();
 			_roomFSM = fsm.GetFSM<SMPhotonRoomState>();
 
+			_masterFSM.ChangeState<DisconnectSMPhotonMasterState>().Forget();
+			_roomFSM.ChangeState<DisconnectSMPhotonRoomState>().Forget();
+
+			UTask.Void( async () => {
+				_displayLog = await SMServiceLocator.WaitResolve<SMDisplayLog>( _canceler );
+			} );
+
 
 			_disposables.AddFirst( () => {
 				_canceler.Dispose();
@@ -115,27 +131,52 @@ namespace SubmarineMirage.Network {
 			} );
 		}
 
+
+
+#if TestNetwork
+		void LateUpdate() {
+			// デバッグ表示を設定
+			_displayLog.Add( Color.cyan );
+			_displayLog.Add( $"● {this.GetAboutName()}" );
+			_displayLog.Add( Color.white );
+
+			_displayLog.Add( $"{nameof( _masterState )} : {_masterState.ToLineString()}" );
+			_displayLog.Add( $"{nameof( _roomState )} : {_roomState.ToLineString()}" );
+			_displayLog.Add( $"{nameof( _isConnect )} : {_isConnect}" );
+		}
+#endif
+
 		///------------------------------------------------------------------------------------------------
 		/// ● 接続
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
 		/// ● オンライン接続
 		/// </summary>
-		public async UniTask<bool> ConnectOnline() {
+		public async UniTask<bool> ConnectOnline( string playerName ) {
 			if ( !( _masterState is OnlineSMPhotonMasterState ) ) {
+				_playerName = playerName;
 				await _masterFSM.ChangeState<OnlineSMPhotonMasterState>();
 			}
-			return await _masterState.WaitConnect();
+			if ( _masterState is OnlineSMPhotonMasterState ) {
+				return await _masterState.WaitConnect();
+			} else {
+				return false;
+			}
 		}
 
 		/// <summary>
 		/// ● オフライン接続
 		/// </summary>
-		public async UniTask<bool> ConnectOffline() {
+		public async UniTask<bool> ConnectOffline( string playerName ) {
 			if ( !( _masterState is OfflineSMPhotonMasterState ) ) {
+				_playerName = playerName;
 				await _masterFSM.ChangeState<OfflineSMPhotonMasterState>();
 			}
-			return await _masterState.WaitConnect();
+			if ( _masterState is OfflineSMPhotonMasterState ) {
+				return await _masterState.WaitConnect();
+			} else {
+				return false;
+			}
 		}
 
 		/// <summary>
@@ -157,7 +198,11 @@ namespace SubmarineMirage.Network {
 			if ( !( _roomState is LobbySMPhotonRoomState ) ) {
 				await _roomFSM.ChangeState<LobbySMPhotonRoomState>();
 			}
-			return await _roomState.WaitConnect();
+			if ( _roomState is LobbySMPhotonRoomState ) {
+				return await _roomState.WaitConnect();
+			} else {
+				return false;
+			}
 		}
 
 		/// <summary>
@@ -170,8 +215,9 @@ namespace SubmarineMirage.Network {
 			try {
 				photonRoom = new SMPhotonRoom( name, password, maxPlayerCount );
 			} catch ( Exception e ) {
-				_errorEvent.Value = $"{e}";
-				SMLog.Error( _errorEvent.Value, SMLogTag.Server );
+				var et = $"{e}";
+				_errorEvent.OnNext( et );
+				SMLog.Error( et, SMLogTag.Server );
 				return false;
 			}
 
@@ -180,25 +226,38 @@ namespace SubmarineMirage.Network {
 				state._room = photonRoom;
 				await _roomFSM.ChangeState<CreateRoomSMPhotonRoomState>();
 			}
-
-			return await _roomState.WaitConnect();
+			if ( _roomState is CreateRoomSMPhotonRoomState ) {
+				return await _roomState.WaitConnect();
+			} else {
+				return false;
+			}
 		}
 
 		/// <summary>
 		/// ● 部屋に入室
 		/// </summary>
-		public async UniTask<bool> EnterRoom( SMGameServerRoom room ) {
+		public async UniTask<bool> EnterRoom( SMGameServerRoom room, string inputPassword ) {
 			if ( !( _masterState is OnlineSMPhotonMasterState ) )	{ return false; }
 
 			var photonRoom = room as SMPhotonRoom;
+
+			if ( !photonRoom.IsEqualPassword( inputPassword ) ) {
+				var et = $"パスワード不一致 : {inputPassword}";
+				_errorEvent.OnNext( et );
+				SMLog.Error( et, SMLogTag.Server );
+				return false;
+			}
 
 			if ( photonRoom.ToToken() != _roomState._room?.ToToken() ) {
 				var state = _roomFSM.GetState<JoinRoomSMPhotonRoomState>();
 				state._room = photonRoom;
 				await _roomFSM.ChangeState<JoinRoomSMPhotonRoomState>();
 			}
-
-			return await _roomState.WaitConnect();
+			if ( _roomState is JoinRoomSMPhotonRoomState ) {
+				return await _roomState.WaitConnect();
+			} else {
+				return false;
+			}
 		}
 
 		///------------------------------------------------------------------------------------------------
@@ -290,7 +349,7 @@ namespace SubmarineMirage.Network {
 		/// </summary>
 		public override void OnPlayerEnteredRoom( Player newPlayer ) {
 			base.OnPlayerEnteredRoom( newPlayer );
-			_playerCountEvent.Value += 1;
+			OnUpdatePlayer();
 		}
 
 		/// <summary>
@@ -298,7 +357,14 @@ namespace SubmarineMirage.Network {
 		/// </summary>
 		public override void OnPlayerLeftRoom( Player otherPlayer ) {
 			base.OnPlayerLeftRoom( otherPlayer );
-			_playerCountEvent.Value -= 1;
+			OnUpdatePlayer();
+		}
+
+		/// <summary>
+		/// ● プレイヤー更新（呼戻）
+		/// </summary>
+		public void OnUpdatePlayer() {
+			_playerCountEvent.Value = PhotonNetwork.CurrentRoom?.PlayerCount ?? 0;
 		}
 
 		///------------------------------------------------------------------------------------------------

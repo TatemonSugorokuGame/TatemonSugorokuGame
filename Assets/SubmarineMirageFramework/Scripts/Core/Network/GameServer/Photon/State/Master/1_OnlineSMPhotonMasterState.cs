@@ -17,7 +17,7 @@ namespace SubmarineMirage.Network {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		public override SMGameServerType _type => SMGameServerType.Online;
+		[SMShow] public override SMGameServerType _type => SMGameServerType.Online;
 
 
 

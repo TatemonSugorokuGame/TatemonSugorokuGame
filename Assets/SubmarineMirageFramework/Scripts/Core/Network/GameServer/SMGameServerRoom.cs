@@ -16,13 +16,15 @@ namespace SubmarineMirage.Network {
 	/// </summary>
 	///====================================================================================================
 	public abstract class SMGameServerRoom : SMLightBase {
-		protected abstract string _wrapText { get; }
+		[SMShow] protected abstract string _wrapText { get; }
 
-		public string _name { get; protected set; }
-		public string _password { get; protected set; }
+		[SMShowLine] public string _name { get; protected set; }
+		[SMShowLine] public string _password { get; protected set; }
 
-		public int _playerCount { get; set; }
-		public int _maxPlayerCount { get; protected set; }
+		[SMShowLine] public int _playerCount { get; set; }
+		[SMShowLine] public int _maxPlayerCount { get; protected set; }
+
+		[SMShowLine] public bool _isActive { get; protected set; }
 
 
 
@@ -34,6 +36,7 @@ namespace SubmarineMirage.Network {
 			_name = name;
 			_password = password;
 			_maxPlayerCount = maxPlayerCount;
+			_isActive = true;
 
 			Wrap();
 		}
@@ -61,6 +64,8 @@ namespace SubmarineMirage.Network {
 		}
 
 
+
+		public abstract bool IsEqualPassword( string password );
 
 		public abstract string ToToken();
 	}

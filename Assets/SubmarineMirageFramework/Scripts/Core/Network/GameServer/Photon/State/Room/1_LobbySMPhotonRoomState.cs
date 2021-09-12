@@ -23,21 +23,23 @@ namespace SubmarineMirage.Network {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		public override SMGameServerRoomType _type => SMGameServerRoomType.Join;
+		[SMShow] public override SMGameServerRoomType _type => SMGameServerRoomType.Join;
 
 		/// <summary>部屋の一覧</summary>
-		public List<SMPhotonRoom> _rooms { get; private set; } = new List<SMPhotonRoom>();
+		[SMShow] readonly Dictionary<string, SMPhotonRoom> _rooms = new Dictionary<string, SMPhotonRoom>();
 
 
 
 		public LobbySMPhotonRoomState() {
 			_exitEvent.AddLast( _registerEventKey, async canceler => {
 				_rooms.Clear();
-				_owner._roomsEvent.Value = _rooms
-					.Select( r => r as SMGameServerRoom )
-					.ToList();
-
+				SendRooms();
 				await UTask.DontWait();
+			} );
+
+
+			_disposables.AddFirst( () => {
+				_rooms.Clear();
 			} );
 		}
 
@@ -51,23 +53,30 @@ namespace SubmarineMirage.Network {
 
 
 
-		public void OnUpdateRoom( List<RoomInfo> roomList ) {
-			_rooms = roomList
-				.Where( r => !r.RemovedFromList )
-				.Select( r => {
-					try {
-						return new SMPhotonRoom( r );
-					} catch ( Exception e ) {
-						SMLog.Error( e, SMLogTag.Server );
-						return null;
-					}
-				} )
-				.Where( r => r != null )
-				.ToList();
+		public void OnUpdateRoom( List<RoomInfo> differenceRooms ) {
+			differenceRooms.ForEach( i => {
+				if ( i.RemovedFromList && i.PlayerCount == 0 ) {
+					_rooms.Remove( i.Name );
+					return;
+				}
 
-			_owner._roomsEvent.Value = _rooms
-				.Select( r => r as SMGameServerRoom )
-				.ToList();
+				try {
+					_rooms[i.Name] = new SMPhotonRoom( i );
+				} catch ( Exception e ) {
+					SMLog.Error( e, SMLogTag.Server );
+					// 他人の部屋のエラーは、伝達しない
+				}
+			} );
+
+			SendRooms();
+		}
+
+		public void SendRooms() {
+			_owner._roomsEvent.OnNext(
+				_rooms
+					.Select( pair => pair.Value as SMGameServerRoom )
+					.ToList()
+			);
 		}
 	}
 }

@@ -8,7 +8,7 @@
 namespace SubmarineMirage.Network {
 	using System;
 	using UniRx;
-	using Photon.Pun;
+	using FSM;
 	using Utility;
 	///====================================================================================================
 	/// <summary>
@@ -20,12 +20,17 @@ namespace SubmarineMirage.Network {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>部屋の型</summary>
-		public abstract SMGameServerRoomType _type { get; }
+		[SMShow] public abstract SMGameServerRoomType _type { get; }
+		/// <summary>部屋（内部）</summary>
+		SMPhotonRoom _internalRoom { get; set; }
 		/// <summary>部屋</summary>
-		public SMPhotonRoom _room { get; set; }
-
-		/// <summary>プレイヤー数</summary>
-		public int _playerCount => PhotonNetwork.CurrentRoom?.PlayerCount ?? 0;
+		[SMShow] public SMPhotonRoom _room {
+			get => _internalRoom;
+			set {
+				_internalRoom = value;
+				_owner._currentRoomEvent.OnNext( _internalRoom );
+			}
+		}
 
 		protected override Type _disconnectStateType => typeof( DisconnectSMPhotonRoomState );
 
@@ -33,15 +38,32 @@ namespace SubmarineMirage.Network {
 		/// ● 作成、削除
 		///------------------------------------------------------------------------------------------------
 		public SMPhotonRoomState() {
-			_exitEvent.AddLast( _registerEventKey, async canceler => {
-				_room = null;
+			_enterEvent.AddFirst( _registerEventKey, async canceler => {
+				_room = _room;
+				await UTask.DontWait();
+			} );
+			_enterEvent.AddLast( _registerEventKey, async canceler => {
+				_owner.OnUpdatePlayer();
 				await UTask.DontWait();
 			} );
 
-			_disposables.AddFirst( () =>
+			_exitEvent.AddLast( _registerEventKey, async canceler => {
+				_room = null;
+				_owner.OnUpdatePlayer();
+				await UTask.DontWait();
+			} );
+		}
+
+		public override void Setup( object owner, SMFSM fsm ) {
+			base.Setup( owner, fsm );
+
+			_disposables.AddFirst(
 				_owner._playerCountEvent
 					.Where( _ => _room != null )
-					.Subscribe( i => _room._playerCount = i )
+					.Subscribe( i => {
+						_room._playerCount = i;
+						_room = _room;
+					} )
 			);
 		}
 

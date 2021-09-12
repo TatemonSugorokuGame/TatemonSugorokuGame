@@ -4,10 +4,12 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage.Network {
 	using System;
 	using Cysharp.Threading.Tasks;
+	using Photon.Pun;
 	using FSM;
 	using Extension;
 	using Utility;
@@ -25,9 +27,9 @@ namespace SubmarineMirage.Network {
 		public new SMPhotonManager _owner { get; private set; }
 
 		/// <summary>接続状態</summary>
-		public SMGameServerStatus _status { get; protected set; }
+		[SMShowLine] public SMGameServerStatus _status { get; protected set; }
 
-		public string _errorText { get; protected set; } = string.Empty;
+		[SMShow] public string _errorText { get; protected set; } = string.Empty;
 
 		protected string _registerEventKey => this.GetAboutName();
 
@@ -38,10 +40,14 @@ namespace SubmarineMirage.Network {
 		///------------------------------------------------------------------------------------------------
 		public SMPhotonState() {
 			_enterEvent.AddLast( _registerEventKey, async canceler => {
+#if TestNetwork
 				SMLog.Debug( $"サーバー接続中 : {this.GetAboutName()}", SMLogTag.Server );
-
+#endif
 				_status = SMGameServerStatus.Disconnect;
 				_errorText = string.Empty;
+				if ( _owner._masterState._status == SMGameServerStatus.Connect ) {
+					await UTask.WaitWhile( canceler, () => !PhotonNetwork.IsConnectedAndReady );
+				}
 				Connect();
 				await UTask.WaitWhile( canceler, () => _status == SMGameServerStatus.Disconnect );
 			} );
@@ -52,8 +58,9 @@ namespace SubmarineMirage.Network {
 			} );
 
 			_exitEvent.AddLast( _registerEventKey, async canceler => {
+#if TestNetwork
 				SMLog.Debug( $"サーバー接続切断中 : {this.GetAboutName()}", SMLogTag.Server );
-
+#endif
 				if ( _status == SMGameServerStatus.Connect ) {
 					Disconnect();
 					await UTask.WaitWhile( canceler, () => _status == SMGameServerStatus.Connect );
@@ -86,8 +93,9 @@ namespace SubmarineMirage.Network {
 		/// </summary>
 		public void OnConnect() {
 			_status = SMGameServerStatus.Connect;
-
+#if TestNetwork
 			SMLog.Debug( $"サーバー接続成功 : {this.GetAboutName()}", SMLogTag.Server );
+#endif
 		}
 
 		/// <summary>
@@ -95,8 +103,9 @@ namespace SubmarineMirage.Network {
 		/// </summary>
 		public void OnDisconnect() {
 			_status = SMGameServerStatus.Disconnect;
-
+#if TestNetwork
 			SMLog.Debug( $"サーバー接続切断 : {this.GetAboutName()}", SMLogTag.Server );
+#endif
 		}
 
 		/// <summary>
@@ -105,7 +114,7 @@ namespace SubmarineMirage.Network {
 		public void OnError( string text ) {
 			_status = SMGameServerStatus.Error;
 			_errorText = text;
-			_owner._errorEvent.Value = _errorText;
+			_owner._errorEvent.OnNext( _errorText );
 
 			SMLog.Error( $"サーバー接続失敗 : {this.GetAboutName()}\n{_errorText}", SMLogTag.Server );
 		}

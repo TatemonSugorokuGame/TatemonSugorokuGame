@@ -16,7 +16,7 @@ namespace SubmarineMirage.Network {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		public override SMGameServerRoomType _type => SMGameServerRoomType.Join;
+		[SMShow] public override SMGameServerRoomType _type => SMGameServerRoomType.Join;
 
 
 

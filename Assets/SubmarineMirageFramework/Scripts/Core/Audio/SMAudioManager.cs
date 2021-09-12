@@ -123,7 +123,7 @@ namespace SubmarineMirage.Audio {
 				{ SMBGS.Daytime,	0.15f },
 				{ SMBGS.Evening,	0.15f },
 				{ SMBGS.Night,		0.2f },
-				{ SMBGS.Wind,		0.6f },
+				{ SMBGS.Wind,		0.5f },
 			};
 
 			_disposables.AddFirst( () => {

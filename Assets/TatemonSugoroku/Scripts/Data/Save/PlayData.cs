@@ -31,11 +31,6 @@ namespace TatemonSugoroku.Scripts {
 		/// <summary>日付</summary>
 		[SMShow] public DateTime _date;
 
-		/// <summary>勝った回数</summary>
-		[SMShow] public int _winCount;
-		/// <summary>負けた回数</summary>
-		[SMShow] public int _loseCount;
-
 		/// <summary>スクリーンショット画像の、生情報一覧</summary>
 		public List<SMTextureRawData> _pictureRawData = new List<SMTextureRawData>();
 

@@ -33,7 +33,7 @@ namespace Sample {
 				SMLog.Debug( $"ゲームシーンに必要なデータを、読み込みました。" );
 				SMLog.Debug( $"{data1._name} : \n{data1._explanation}" );
 				SMLog.Debug( $"{data2._name} : \n{data2._explanation}" );
-				SMLog.Debug( $"勝ち数 : {playData._winCount}\n負け数 : {playData._loseCount}" );
+//				SMLog.Debug( $"勝ち数 : {playData._winCount}\n負け数 : {playData._loseCount}" );
 
 				await UTask.DontWait();
 			} );

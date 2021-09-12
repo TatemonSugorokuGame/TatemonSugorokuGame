@@ -35,12 +35,13 @@ namespace TatemonSugoroku.Scripts {
 			);
 			DOTween.defaultAutoPlay = AutoPlay.None;
 
-			Resources.Load<GameObject>( "Prefabs/EffectTap1" ).Instantiate();
-
 			await SystemTask.Delay( 1 );
 
 			// UniTask初期化
 			UniTaskScheduler.UnobservedExceptionWriteLogType = LogType.Error;
+
+			Resources.Load<GameObject>( "Prefabs/EffectTap1" ).Instantiate();
+			Resources.Load<GameObject>( "Prefabs/UINetworkError" ).Instantiate();
 		}
 
 		/// <summary>
