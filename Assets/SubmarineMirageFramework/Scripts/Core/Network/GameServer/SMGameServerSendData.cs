@@ -17,11 +17,11 @@ namespace SubmarineMirage.Network {
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
 		/// <summary>送信秒数</summary>
-		[SMShow] public double _sendSeconds;
+		[SMShow] public float _sendSeconds;
 		/// <summary>送信者</summary>
-		[SMShow] public object _sender;
+		public object _sender;
 		/// <summary>視野</summary>
-		[SMShow] public object _view;
+		public object _view;
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 生成、破棄

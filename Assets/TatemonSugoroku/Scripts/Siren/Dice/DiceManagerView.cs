@@ -5,6 +5,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using UniRx;
 using KoganeUnityLib;
+using SubmarineMirage;
 using SubmarineMirage.Base;
 using SubmarineMirage.Service;
 using SubmarineMirage.Audio;
@@ -25,14 +26,13 @@ namespace TatemonSugoroku.Scripts {
 
 		
 		Vector3 _power { get; set; }
-
-		readonly List<DiceView> _views = new List<DiceView>();
-		readonly SMAsyncCanceler _canceler = new SMAsyncCanceler();
-
-		public int _total { get; private set; }
+		[SMShow] readonly List<DiceView> _views = new List<DiceView>();
+		[SMShow] public int _total { get; private set; }
 
 		public readonly Subject<int> _totalEvent = new Subject<int>();
 		public readonly ReactiveProperty<DiceState> _state = new ReactiveProperty<DiceState>();
+
+		readonly SMAsyncCanceler _canceler = new SMAsyncCanceler();
 
 
 
@@ -42,8 +42,7 @@ namespace TatemonSugoroku.Scripts {
 			var gameServerModel = SMServiceLocator.Resolve<SMNetworkManager>()._gameServerModel;
 			if ( gameServerModel._isServer ) {
 				MAX_COUNT.Times( i => {
-					var go = gameServerModel.Instantiate( "Prefab/Dice" );
-					go.SetParent( transform );
+					var go = gameServerModel.Instantiate( "Prefabs/Dice" );
 					var view = go.GetComponent<DiceView>();
 					view.SendDiceID( i );
 				} );
@@ -60,8 +59,10 @@ namespace TatemonSugoroku.Scripts {
 
 
 
-		public void Register( DiceView dice )
-			=> _views.Add( dice );
+		public void Register( DiceView dice ) {
+			_views.Add( dice );
+			dice.SetParent( transform );
+		}
 
 
 

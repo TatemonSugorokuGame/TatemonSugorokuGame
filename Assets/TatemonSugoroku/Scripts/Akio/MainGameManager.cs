@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+using System;
 using System.Linq;
+using System.Collections.Generic;
 using SubmarineMirage.Base;
 using SubmarineMirage.Debug;
 using SubmarineMirage.Service;
@@ -98,7 +99,7 @@ namespace TatemonSugoroku.Scripts.Akio
         PlayerInternalModel[] playerModels;
         SMAudioManager audioManager;
         SMGameServerModel gameServerModel;
-        NetworkTurnView networkTurnView;
+        [HideInInspector] public NetworkTurnView networkTurnView;
 
         bool _isGameEnd;
 
@@ -250,27 +251,21 @@ namespace TatemonSugoroku.Scripts.Akio
 
         async UniTask InitializeServer( CancellationToken ct ) {
             var uiError = FindObjectOfType<UINetworkError>( true );
-            gameServerModel._playerCountEvent
+            IDisposable disposable = null;
+            disposable = gameServerModel._playerCountEvent
                 .Where( _ => !_isGameEnd )
                 .Where( _ => gameServerModel._type == SMGameServerType.Online )
                 .Where( i => i < SMNetworkManager.MAX_PLAYERS )
-                .Subscribe( _ => uiError.SetErrorText( "他のプレイヤーが、ネットワーク切断" ) )
+                .Subscribe( _ => {
+                    uiError.SetErrorText( "他のプレイヤーが、ネットワーク切断" );
+                    disposable.Dispose();
+                } )
                 .AddTo( gameObject );
 
-            GameObject go = null;
             if ( gameServerModel._isServer ) {
-                go = gameServerModel.Instantiate( "Prefabs/NetworkTurnView" );
-            } else {
-                await UniTask.WaitWhile(
-                    () => {
-                        go = GameObject.Find( "Prefabs/NetworkTurnView" );
-                        return go == null;
-                    },
-                    PlayerLoopTiming.Update,
-                    ct
-                );
+                gameServerModel.Instantiate( "Prefabs/NetworkTurnView" );
             }
-            networkTurnView = go.GetComponent<NetworkTurnView>();
+            await UniTask.WaitWhile( () => networkTurnView == null, cancellationToken: ct );
 
             await _DiceManager.WaitSetup();
             await networkTurnView.WaitReady();
@@ -306,7 +301,11 @@ namespace TatemonSugoroku.Scripts.Akio
             _GameEndUI.SetActive( true );
             _CameraManager.SetResultCamera();
 
-            await networkTurnView.WaitReady();
+            try {
+                await networkTurnView.WaitReady();
+            } catch( OperationCanceledException ) {
+			}
+
             if ( await gameServerModel.Disconnect() ) {
             }
 

@@ -58,7 +58,7 @@ namespace SubmarineMirage.Network {
 		void OnDestroy() => Dispose();
 
 		public virtual void Dispose() {
-			_model.Destroy( gameObject );
+			gameObject.Destroy();
 		}
 
 		///------------------------------------------------------------------------------------------------

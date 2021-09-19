@@ -1,3 +1,4 @@
+#define TestDice
 using System.Linq;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
@@ -19,18 +20,19 @@ namespace TatemonSugoroku.Scripts {
 	/// ■ サイコロの描画クラス
 	/// </summary>
 	public class DiceView : SMNetworkMonoBehaviourView {
-		Rigidbody _rigidbody { get; set; }
-		Transform[] _transforms { get; set; }
-		Vector3 _firstPosition { get; set; }
-		ParticleSystem _particle { get; set; }
+		Rigidbody _rigidbody		{ get; set; }
+		Transform[] _transforms		{ get; set; }
+		Vector3 _firstPosition		{ get; set; }
+		ParticleSystem _particle	{ get; set; }
 
-		int _diceID { get; set; }
-		DiceState _state { get; set; }
-		public Vector3 _power { get; set; }
-		public int _value { get; set; }
+		[SMShow] int _diceID			{ get; set; }
+		[SMShow] DiceState _state		{ get; set; }
+		[SMShow] public Vector3 _power	{ get; set; }
+		[SMShow] public int _value		{ get; set; }
 
-		SMAudioManager _audioManager { get; set; }
-		SMGameServerModel _gameServerModel { get; set; }
+		SMAudioManager _audioManager		{ get; set; }
+		SMGameServerModel _gameServerModel	{ get; set; }
+		SMDisplayLog _displayLog			{ get; set; }
 
 		readonly SMAsyncCanceler _canceler = new SMAsyncCanceler();
 
@@ -41,6 +43,7 @@ namespace TatemonSugoroku.Scripts {
 
 			_audioManager = SMServiceLocator.Resolve<SMAudioManager>();
 			_gameServerModel = SMServiceLocator.Resolve<SMNetworkManager>()._gameServerModel;
+			_displayLog = SMServiceLocator.Resolve<SMDisplayLog>();
 
 			_rigidbody = GetComponent<Rigidbody>();
 			_transforms = transform.GetChildren( true )
@@ -65,11 +68,14 @@ namespace TatemonSugoroku.Scripts {
 		protected override void UpdateAfterInitialize() {
 			switch ( _state ) {
 				case DiceState.Rotate:
-					if ( _objectType != SMNetworkObjectType.Mine )	{ return; }
-
-					transform.position = _firstPosition;
+					if ( _objectType == SMNetworkObjectType.Mine ) {
+						transform.position = _firstPosition;
+					}
 					break;
 			}
+#if TestDice
+			_displayLog.Add( $"Dice {_diceID} : {_value}, {_state}" );
+#endif
 		}
 
 		void OnCollisionEnter( Collision collision ) {
@@ -206,6 +212,8 @@ namespace TatemonSugoroku.Scripts {
 		public class IDSendData : SMGameServerSendData {
 			[SMShow] public int _diceID;
 
+			public IDSendData() {
+			}
 			public IDSendData( int diceID ) {
 				_diceID = diceID;
 			}
@@ -214,6 +222,8 @@ namespace TatemonSugoroku.Scripts {
 		public class ValueSendData : SMGameServerSendData {
 			[SMShow] public int _value;
 
+			public ValueSendData() {
+			}
 			public ValueSendData( int value ) {
 				_value = value;
 			}
@@ -222,6 +232,8 @@ namespace TatemonSugoroku.Scripts {
 		public class ChangeStateSendData : SMGameServerSendData {
 			[SMShow] public DiceState _state;
 
+			public ChangeStateSendData() {
+			}
 			public ChangeStateSendData( DiceState state ) {
 				_state = state;
 			}

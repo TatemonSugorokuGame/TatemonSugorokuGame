@@ -49,11 +49,10 @@ namespace SubmarineMirage.Network {
 		/// ● 生成、削除
 		///------------------------------------------------------------------------------------------------
 		protected override void Awake() {
-			base.Awake();
-
 #if PHOTON_UNITY_NETWORKING
 			_view = GetComponent<SMPhotonMonoBehaviourView>();
 #endif
+			base.Awake();
 		}
 
 		void Reset() {

@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestNetwork
+//#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage.Network {
 	using System;
@@ -88,8 +88,10 @@ namespace SubmarineMirage.Network {
 			_receiveStreamEvent.Dispose();
 			_receiveEvent.Dispose();
 
-			var gameServerModel = SMServiceLocator.Resolve<SMNetworkManager>()._gameServerModel;
-			gameServerModel?.Destroy( gameObject );
+			if ( _objectType == SMNetworkObjectType.Mine ) {
+				var gameServerModel = SMServiceLocator.Resolve<SMNetworkManager>()?._gameServerModel;
+				gameServerModel?.Destroy( gameObject );
+			}
 		}
 
 		///------------------------------------------------------------------------------------------------
@@ -102,6 +104,9 @@ namespace SubmarineMirage.Network {
 			where TTarget : class
 			where TData : SMGameServerSendData
 		{
+#if TestNetwork
+			SMLog.Debug( $"{nameof( Send )} : {data}", SMLogTag.Server );
+#endif
 			SendOnline( target, data );
 /*
 			if ( photonView.IsMine )	{ SendOffline( data ); }
@@ -120,20 +125,20 @@ namespace SubmarineMirage.Network {
 			data._sender = null;
 			data._view = null;
 			var rawData = SerializerSMUtility.Serialize( data );
-			var typeName = typeof( TData ).FullName;
+			var typeName = data.GetType().AssemblyQualifiedName;
 
 			switch ( target ) {
 				case SMGameServerSendTarget sendTarget: {
 					var rpcTarget = ToRPCTarget( sendTarget );
-					photonView.RPC( nameof( OnReceive ), rpcTarget, typeName, rawData );
+					photonView.RPC( nameof( Receive ), rpcTarget, typeName, rawData );
 					break;
 				}
 				case Player player: {
-					photonView.RPC( nameof( OnReceive ), player, typeName, rawData );
+					photonView.RPC( nameof( Receive ), player, typeName, rawData );
 					break;
 				}
 				case RpcTarget rpcTarget: {
-					photonView.RPC( nameof( OnReceive ), rpcTarget, typeName, rawData );
+					photonView.RPC( nameof( Receive ), rpcTarget, typeName, rawData );
 					break;
 				}
 				default: {
@@ -153,7 +158,7 @@ namespace SubmarineMirage.Network {
 		void SendOffline<T>( T data ) where T : SMGameServerSendData {
 			var rawData = SerializerSMUtility.Serialize( data );
 			var typeName = typeof( T ).FullName;
-			OnReceive(
+			Receive(
 				typeName,
 				rawData,
 				new PhotonMessageInfo( PhotonNetwork.LocalPlayer, PhotonNetwork.ServerTimestamp, photonView )
@@ -162,14 +167,17 @@ namespace SubmarineMirage.Network {
 		*/
 
 		/// <summary>
-		/// ● 情報受信（呼戻）
+		/// ● 情報受信
 		/// </summary>
-		[PunRPC] public void OnReceive( string typeName, byte[] rawData, PhotonMessageInfo info ) {
+		[PunRPC] public void Receive( string typeName, byte[] rawData, PhotonMessageInfo info ) {
 			var type = Type.GetType( typeName );
 			var data = SerializerSMUtility.Deserialize( type, rawData ) as SMGameServerSendData;
-			data._sendSeconds = info.SentServerTime;
+			data._sendSeconds = ( float )info.SentServerTime;
 			data._sender = info.Sender;
 			data._view = info.photonView;
+#if TestNetwork
+			SMLog.Debug( $"{nameof( Receive )} : {data}", SMLogTag.Server );
+#endif
 			_receiveEvent.OnNext( data );
 		}
 
@@ -351,8 +359,7 @@ namespace SubmarineMirage.Network {
 					return target._isKeep ? RpcTarget.AllBufferedViaServer : RpcTarget.AllViaServer;
 
 				case SMGameServerSendTargetType.Server:
-					if ( target._isKeep ) {
-#if TestNetwork
+					if ( target._isKeep && SMDebugManager.IS_DEVELOP ) {
 						SMLog.Warning(
 							string.Join( "\n",
 								$"{this.GetAboutName()}.{nameof( ToRPCTarget )} : 変換を妥協",
@@ -362,7 +369,6 @@ namespace SubmarineMirage.Network {
 							),
 							SMLogTag.Server
 						);
-#endif
 					}
 					return RpcTarget.MasterClient;
 
