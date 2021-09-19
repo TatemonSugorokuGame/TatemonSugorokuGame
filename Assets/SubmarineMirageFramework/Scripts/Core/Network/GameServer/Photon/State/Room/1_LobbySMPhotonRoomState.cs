@@ -4,13 +4,14 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage.Network {
-	using System;
 	using System.Linq;
 	using System.Collections.Generic;
 	using Photon.Realtime;
 	using Photon.Pun;
+	using Extension;
 	using Utility;
 	using Setting;
 	using Debug;
@@ -45,11 +46,21 @@ namespace SubmarineMirage.Network {
 
 
 
-		protected override void Connect()
-			=> PhotonNetwork.JoinLobby();
+		protected override bool Connect() {
+			var isSuccess = PhotonNetwork.JoinLobby();
+#if TestNetwork
+			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Connect )} : {isSuccess}", SMLogTag.Server );
+#endif
+			return isSuccess;
+		}
 
-		protected override void Disconnect()
-			=> PhotonNetwork.LeaveLobby();
+		protected override bool Disconnect() {
+			var isSuccess = PhotonNetwork.LeaveLobby();
+#if TestNetwork
+			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Disconnect )} : {isSuccess}", SMLogTag.Server );
+#endif
+			return isSuccess;
+		}
 
 
 
@@ -62,7 +73,7 @@ namespace SubmarineMirage.Network {
 
 				try {
 					_rooms[i.Name] = new SMPhotonRoom( i );
-				} catch ( Exception e ) {
+				} catch ( GameServerSMException e ) {
 					SMLog.Error( e, SMLogTag.Server );
 					// 他人の部屋のエラーは、伝達しない
 				}

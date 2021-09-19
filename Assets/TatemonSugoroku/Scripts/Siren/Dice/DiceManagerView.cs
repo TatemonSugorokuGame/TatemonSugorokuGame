@@ -8,6 +8,7 @@ using KoganeUnityLib;
 using SubmarineMirage.Base;
 using SubmarineMirage.Service;
 using SubmarineMirage.Audio;
+using SubmarineMirage.Network;
 using SubmarineMirage.Extension;
 using SubmarineMirage.Utility;
 using SubmarineMirage.Setting;
@@ -25,9 +26,7 @@ namespace TatemonSugoroku.Scripts {
 		
 		Vector3 _power { get; set; }
 
-		[SerializeField] GameObject _prefab;
 		readonly List<DiceView> _views = new List<DiceView>();
-		UIDiceView _uiView { get; set; }
 		readonly SMAsyncCanceler _canceler = new SMAsyncCanceler();
 
 		public int _total { get; private set; }
@@ -37,21 +36,32 @@ namespace TatemonSugoroku.Scripts {
 
 
 
-		void Start() {
-			_uiView = FindObjectOfType<UIDiceView>();
+		protected override void StartAfterInitialize() {
+			base.StartAfterInitialize();
 
-			MAX_COUNT.Times( i => {
-				var go = _prefab.Instantiate( transform );
-				var v = go.GetComponent<DiceView>();
-				v.Setup( i );
-				_views.Add( v );
-			} );
+			var gameServerModel = SMServiceLocator.Resolve<SMNetworkManager>()._gameServerModel;
+			if ( gameServerModel._isServer ) {
+				MAX_COUNT.Times( i => {
+					var go = gameServerModel.Instantiate( "Prefab/Dice" );
+					go.SetParent( transform );
+					var view = go.GetComponent<DiceView>();
+					view.SendDiceID( i );
+				} );
+			}
 
 			_disposables.AddFirst( () => {
 				_totalEvent.Dispose();
 				_canceler.Dispose();
 			} );
 		}
+
+		public UniTask WaitSetup()
+			=> UTask.WaitWhile( _canceler, () => _views.Count != MAX_COUNT );
+
+
+
+		public void Register( DiceView dice )
+			=> _views.Add( dice );
 
 
 
@@ -69,31 +79,33 @@ namespace TatemonSugoroku.Scripts {
 
 
 
-		public async UniTask ChangeState( DiceState state ) {
+		public async UniTask ChangeState( DiceState state, bool isInputTurn ) {
 			_canceler.Cancel();
-
 			_state.Value = state;
 
-			//await _uiView.ChangeState( state );
-			await _views.Select( v => v.ChangeState( state ) );
-
-			if ( state == DiceState.Roll ) {
+			if ( _state.Value == DiceState.Roll ) {
+				_views.ForEach( v => v._value = -1 );
+			}
+			if ( isInputTurn ) {
+				_views.ForEach( v => v.SendChangeState( _state.Value ) );
+			}
+			if ( _state.Value == DiceState.Roll ) {
+				await UTask.WaitWhile( _canceler, () => _views.Any( v => v._value == -1 ) );
 				_total = _views.Sum( v => v._value );
 				_totalEvent.OnNext( _total );
 			}
 		}
 
-		public async UniTask<int> Roll() {
+		public async UniTask<int> Roll( bool isInputTurn ) {
 			await UTask.DelayFrame( _canceler, 1 );
 
 			var audioManager = await SMServiceLocator.WaitResolve<SMAudioManager>();
 			audioManager.Play( SMSE.Dice ).Forget();
 
-//			await ChangeState( DiceState.Rotate );
-			await ChangeState( DiceState.Roll );
+			await ChangeState( DiceState.Roll, isInputTurn );
 			UTask.Void( async () => {
 				await UTask.Delay( _canceler, 5000 );
-				await ChangeState( DiceState.Hide );
+				await ChangeState( DiceState.Hide, isInputTurn );
 			} );
 			return _total;
 		}

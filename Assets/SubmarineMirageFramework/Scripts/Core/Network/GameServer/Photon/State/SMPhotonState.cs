@@ -24,12 +24,12 @@ namespace SubmarineMirage.Network {
 		///------------------------------------------------------------------------------------------------
 		/// ● 要素
 		///------------------------------------------------------------------------------------------------
-		public new SMPhotonManager _owner { get; private set; }
+		public new SMPhotonServerModel _owner { get; private set; }
 
 		/// <summary>接続状態</summary>
 		[SMShowLine] public SMGameServerStatus _status { get; protected set; }
 
-		[SMShow] public string _errorText { get; protected set; } = string.Empty;
+		[SMShow] public GameServerSMException _error { get; protected set; }
 
 		protected string _registerEventKey => this.GetAboutName();
 
@@ -44,12 +44,15 @@ namespace SubmarineMirage.Network {
 				SMLog.Debug( $"サーバー接続中 : {this.GetAboutName()}", SMLogTag.Server );
 #endif
 				_status = SMGameServerStatus.Disconnect;
-				_errorText = string.Empty;
+				_error = null;
 				if ( _owner._masterState._status == SMGameServerStatus.Connect ) {
 					await UTask.WaitWhile( canceler, () => !PhotonNetwork.IsConnectedAndReady );
 				}
-				Connect();
-				await UTask.WaitWhile( canceler, () => _status == SMGameServerStatus.Disconnect );
+				if ( Connect() ) {
+					await UTask.WaitWhile( canceler, () => _status == SMGameServerStatus.Disconnect );
+				} else {
+					_status = SMGameServerStatus.Error;
+				}
 			} );
 
 			_asyncUpdateEvent.AddLast( _registerEventKey, async canceler => {
@@ -62,22 +65,25 @@ namespace SubmarineMirage.Network {
 				SMLog.Debug( $"サーバー接続切断中 : {this.GetAboutName()}", SMLogTag.Server );
 #endif
 				if ( _status == SMGameServerStatus.Connect ) {
-					Disconnect();
-					await UTask.WaitWhile( canceler, () => _status == SMGameServerStatus.Connect );
+					if ( Disconnect() ) {
+						await UTask.WaitWhile( canceler, () => _status == SMGameServerStatus.Connect );
+					} else {
+						_status = SMGameServerStatus.Error;
+					}
 				}
 			} );
 		}
 
 		public override void Setup( object owner, SMFSM fsm ) {
 			base.Setup( owner, fsm );
-			_owner = base._owner as SMPhotonManager;
+			_owner = base._owner as SMPhotonServerModel;
 		}
 
 
 
-		protected abstract void Connect();
+		protected abstract bool Connect();
 
-		protected abstract void Disconnect();
+		protected abstract bool Disconnect();
 
 
 
@@ -111,12 +117,12 @@ namespace SubmarineMirage.Network {
 		/// <summary>
 		/// ● 接続失敗（呼戻）
 		/// </summary>
-		public void OnError( string text ) {
+		public void OnError( GameServerSMException error ) {
 			_status = SMGameServerStatus.Error;
-			_errorText = text;
-			_owner._errorEvent.OnNext( _errorText );
+			_error = error;
 
-			SMLog.Error( $"サーバー接続失敗 : {this.GetAboutName()}\n{_errorText}", SMLogTag.Server );
+			SMLog.Error( $"{_error}", SMLogTag.Server );
+			_owner._errorEvent.OnNext( _error );
 		}
 	}
 }

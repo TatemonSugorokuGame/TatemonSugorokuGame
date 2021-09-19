@@ -32,7 +32,7 @@ namespace TatemonSugoroku.Scripts {
 		SMSceneManager _sceneManager { get; set; }
 		SMAudioManager _audioManager { get; set; }
 		SMNetworkManager _networkManager { get; set; }
-		ISMGameServer _gameServer { get; set; }
+		SMGameServerModel _gameServer { get; set; }
 
 		readonly SMAsyncCanceler _canceler = new SMAsyncCanceler();
 
@@ -42,7 +42,7 @@ namespace TatemonSugoroku.Scripts {
 			_sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
 			_audioManager = SMServiceLocator.Resolve<SMAudioManager>();
 			_networkManager = SMServiceLocator.Resolve<SMNetworkManager>();
-			_gameServer = _networkManager._gameServer;
+			_gameServer = _networkManager._gameServerModel;
 
 
 			foreach ( Transform t in _pageTop ) {
@@ -62,6 +62,7 @@ namespace TatemonSugoroku.Scripts {
 					.Where( i => i == SMNetworkManager.MAX_PLAYERS )
 					.Subscribe( i => {
 						UTask.Void( async () => {
+							ChangeButtonGuard( true );
 							await _audioManager.Play( SMSE.Title );
 							_sceneManager.GetFSM<MainSMScene>().ChangeState<GameSMScene>().Forget();
 						} );
@@ -75,17 +76,24 @@ namespace TatemonSugoroku.Scripts {
 			);
 
 			_disposables.AddFirst(
-				_gameServer._roomsEvent
-					.Subscribe( rs => {
-						foreach ( RectTransform t in _roomTop ) {
-							t.gameObject.Destroy();
-						}
+				_gameServer._roomsEvent.Subscribe( rs => {
+					foreach ( RectTransform t in _roomTop ) {
+						t.gameObject.Destroy();
+					}
 
-						rs.ForEach( r => {
-							var go = _room.Instantiate( _roomTop );
-							var ui = go.GetComponent<UINetworkRoom>();
-							ui.Setup( this, r );
-						} );
+					rs.ForEach( r => {
+						var go = _room.Instantiate( _roomTop );
+						var ui = go.GetComponent<UINetworkRoom>();
+						ui.Setup( this, r );
+					} );
+				} )
+			);
+
+			_disposables.AddFirst(
+				_gameServer._errorEvent
+					.Where( e => e._isDisconnect )
+					.Subscribe( e => {
+						ChangePage( 0 );
 					} )
 			);
 
@@ -102,14 +110,20 @@ namespace TatemonSugoroku.Scripts {
 
 						switch ( b.name ) {
 							case "ButtonOffline": {
-								await _audioManager.Play( SMSE.Title );
-								_sceneManager.GetFSM<MainSMScene>().ChangeState<GameSMScene>().Forget();
+								_audioManager.Play( SMSE.Title ).Forget();
+								if ( await _gameServer.Connect( false, $"プレイヤー{DateTime.Now}" ) ) {
+									if ( await _gameServer.CreateRoom(
+											$"お祭り会場 {DateTime.Now}", string.Empty, SMNetworkManager.MAX_PLAYERS )
+									) {
+										_sceneManager.GetFSM<MainSMScene>().ChangeState<GameSMScene>().Forget();
+									}
+								}
 								return;
 							}
 
 							case "ButtonOnline": {
 								_audioManager.Play( SMSE.Decide ).Forget();
-								if ( await _gameServer.ConnectOnline( $"プレイヤー{DateTime.Now}" ) ) {
+								if ( await _gameServer.Connect( true, $"プレイヤー{DateTime.Now}" ) ) {
 									if ( await _gameServer.EnterLobby() ) {
 										ChangePage( 1 );
 									}

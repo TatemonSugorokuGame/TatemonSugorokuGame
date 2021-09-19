@@ -5,7 +5,8 @@
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
 namespace SubmarineMirage.Network {
-	using System;
+	using System.Linq;
+	using System.Collections.Generic;
 	using UnityEngine;
 	using Base;
 	using Extension;
@@ -16,7 +17,7 @@ namespace SubmarineMirage.Network {
 	/// </summary>
 	///====================================================================================================
 	public abstract class SMGameServerRoom : SMLightBase {
-		[SMShow] protected abstract string _wrapText { get; }
+		[SMShow] protected static readonly List<string> s_prohibitionWords = new List<string>();
 
 		[SMShowLine] public string _name { get; protected set; }
 		[SMShowLine] public string _password { get; protected set; }
@@ -49,23 +50,44 @@ namespace SubmarineMirage.Network {
 			_name = _name ?? string.Empty;
 			_password = _password ?? string.Empty;
 
-			if ( _name.Contains( _wrapText ) ) {
-				throw new InvalidOperationException( string.Join( "\n",
-					$"{this.GetAboutName()}.{nameof( Wrap )} : 部屋名に、禁則文字を使用",
-					$"{nameof( _name )} : {_name}"
-				) );
+			if ( IsUseProhibitionWord( _name ) ) {
+				throw new GameServerSMException(
+					SMGameServerErrorType.UseProhibitionWord,
+					null,
+					string.Join( "\n",
+						$"{this.GetAboutName()}.{nameof( Wrap )} : 部屋名に、禁則単語を使用",
+						$"{nameof( _name )} : {_name}"
+					),
+					false
+				);
 			}
-			if ( _password.Contains( _wrapText ) ) {
-				throw new InvalidOperationException( string.Join( "\n",
-					$"{this.GetAboutName()}.{nameof( Wrap )} : パスワードに、禁則文字を使用",
-					$"{nameof( _password )} : {_password}"
-				) );
+			if ( IsUseProhibitionWord( _password ) ) {
+				throw new GameServerSMException(
+					SMGameServerErrorType.UseProhibitionWord,
+					null,
+					string.Join( "\n",
+						$"{this.GetAboutName()}.{nameof( Wrap )} : パスワードに、禁則単語を使用",
+						$"{nameof( _password )} : {_password}"
+					),
+					false
+				);
 			}
 		}
 
 
 
-		public abstract bool IsEqualPassword( string password );
+		public bool IsUseProhibitionWord( string text )
+			=> s_prohibitionWords.Any( pt => text.Contains( pt ) );
+
+		public bool IsEqualPassword( string password ) {
+			password = password ?? string.Empty;
+			return _password == password;
+		}
+
+		public bool IsFull()
+			=> _playerCount == _maxPlayerCount;
+
+
 
 		public abstract string ToToken();
 	}

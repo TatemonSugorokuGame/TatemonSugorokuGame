@@ -4,10 +4,14 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage.Network {
 	using Photon.Realtime;
 	using Photon.Pun;
+	using Extension;
+	using Setting;
+	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ 部屋が、作成の、フォトン状態クラス
@@ -26,14 +30,23 @@ namespace SubmarineMirage.Network {
 
 
 
-		protected override void Connect() {
+		protected override bool Connect() {
 			var option = new RoomOptions();
 			option.MaxPlayers = ( byte )_room._maxPlayerCount;
-			PhotonNetwork.CreateRoom( _room.ToToken(), option );
+			var isSuccess = PhotonNetwork.CreateRoom( _room.ToToken(), option );
+#if TestNetwork
+			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Connect )} : {isSuccess}", SMLogTag.Server );
+#endif
+			return isSuccess;
 		}
 
-		protected override void Disconnect()
-			=> PhotonNetwork.LeaveRoom();
+		protected override bool Disconnect() {
+			var isSuccess = PhotonNetwork.LeaveRoom();
+#if TestNetwork
+			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Disconnect )} : {isSuccess}", SMLogTag.Server );
+#endif
+			return isSuccess;
+		}
 	}
 }
 #endif

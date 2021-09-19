@@ -297,7 +297,9 @@ namespace SubmarineMirage.Audio {
 			// 再生完了まで待機
 			await UTask.WaitUntil( _runningCanceler, () => !IsPlayingSource() );
 			// 停止
-			StopSource( _runningName.Value );
+			if ( _runningName.HasValue ) {
+				StopSource( _runningName.Value );
+			}
 			UnloadStopAudio();	// 停止中の音を全削除
 		}
 

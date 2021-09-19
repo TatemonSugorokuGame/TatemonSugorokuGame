@@ -241,7 +241,7 @@ namespace TatemonSugoroku.Scripts.Akio
                 currentPosition = _currentPosition;
             }
 
-            Debug.Log(currentPosition);
+//            Debug.Log(currentPosition);
             
             if (currentPosition >= MAX_X_DIRECTION_OF_CELLS)
             {

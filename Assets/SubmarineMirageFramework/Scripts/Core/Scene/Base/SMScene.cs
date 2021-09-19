@@ -19,6 +19,7 @@ namespace SubmarineMirage.Scene {
 	using Task.Marker;
 	using FSM;
 	using Audio;
+	using Network;
 	using UI;
 	using Extension;
 	using Utility;
@@ -63,6 +64,7 @@ namespace SubmarineMirage.Scene {
 
 			var uiFade = SMServiceLocator.Resolve<SMUIFade>();
 			var audioManager = SMServiceLocator.Resolve<SMAudioManager>();
+			var gameServer = SMServiceLocator.Resolve<SMNetworkManager>()._gameServerModel;
 			var isMainScene = this is MainSMScene;
 
 			_enterEvent.AddLast( _registerEventName, async canceler => {
@@ -89,6 +91,9 @@ namespace SubmarineMirage.Scene {
 						await UTask.Delay( _asyncCancelerOnExit, 500 );
 						await uiFade.In();
 					} );
+					if ( gameServer != null ) {
+						gameServer._isActive = true;
+					}
 				}
 
 				_isEntered = true;
@@ -99,6 +104,9 @@ namespace SubmarineMirage.Scene {
 				_isEntered = false;
 
 				if ( isMainScene ) {
+					if ( gameServer != null ) {
+						gameServer._isActive = false;
+					}
 					await UniTask.WhenAll(
 						uiFade.Out(),
 						audioManager.StopAll()

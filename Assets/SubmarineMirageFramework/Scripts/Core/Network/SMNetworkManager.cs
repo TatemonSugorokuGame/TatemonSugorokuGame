@@ -35,7 +35,7 @@ namespace SubmarineMirage.Network {
 		/// <summary>安定接続か？</summary>
 		public readonly ReactiveProperty<bool> _isStableConnect = new ReactiveProperty<bool>();
 
-		[SMShow] public ISMGameServer _gameServer { get; private set; }
+		[SMShow] public SMGameServerModel _gameServerModel { get; private set; }
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 作成、削除
@@ -45,13 +45,18 @@ namespace SubmarineMirage.Network {
 		/// </summary>
 		public SMNetworkManager() {
 #if PHOTON_UNITY_NETWORKING
-			_gameServer = SMPhotonManager.Create();
+			var model = new SMPhotonServerModel( this );
+			_gameServerModel = model;
+			var view = SMPhotonServerView.Create( model );
+			_disposables.AddFirst( () => {
+				view.Dispose();
+			} );
 #endif
 
 			_disposables.AddFirst( () => {
 				_isConnect = false;
 				_isStableConnect.Dispose();
-				_gameServer?.Dispose();
+				_gameServerModel?.Dispose();
 			} );
 		}
 

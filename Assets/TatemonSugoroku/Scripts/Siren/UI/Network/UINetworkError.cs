@@ -21,7 +21,7 @@ namespace TatemonSugoroku.Scripts {
 		SMSceneManager _sceneManager { get; set; }
 		SMAudioManager _audioManager { get; set; }
 		SMNetworkManager _networkManager { get; set; }
-		ISMGameServer _gameServer { get; set; }
+		SMGameServerModel _gameServer { get; set; }
 
 
 
@@ -31,9 +31,9 @@ namespace TatemonSugoroku.Scripts {
 			_sceneManager = SMServiceLocator.Resolve<SMSceneManager>();
 			_audioManager = SMServiceLocator.Resolve<SMAudioManager>();
 			_networkManager = SMServiceLocator.Resolve<SMNetworkManager>();
-			_gameServer = _networkManager._gameServer;
+			_gameServer = _networkManager._gameServerModel;
 
-			SetError( string.Empty );
+			SetError( null );
 
 			var buttons = GetComponentsInChildren<Button>( true );
 			buttons.ForEach( b => {
@@ -42,11 +42,11 @@ namespace TatemonSugoroku.Scripts {
 						switch ( b.name ) {
 							case "ButtonClose": {
 								_audioManager.Play( SMSE.Decide ).Forget();
-								SetError( string.Empty );
+								SetError( null );
 
 								var mainFSM = _sceneManager.GetFSM<MainSMScene>();
 								if ( mainFSM._state is GameSMScene ) {
-									mainFSM.ChangeState<TitleSMScene>().Forget();
+									mainFSM.ChangeState<NetworkSMScene>().Forget();
 								}
 								return;
 							}
@@ -58,15 +58,37 @@ namespace TatemonSugoroku.Scripts {
 			} );
 
 			_disposables.AddFirst(
-				_gameServer._errorEvent.Subscribe( t => SetError( t ) )
+				_gameServer._errorEvent.Subscribe( e => SetError( e ) )
 			);
 		}
 
 
 
-		public void SetError( string text ) {
+		void SetError( GameServerSMException error ) {
+			if ( error == null ) {
+				_info.text = string.Empty;
+				gameObject.SetActive( false );
+				return;
+			}
+
+			_info.text = string.Join( "\n",
+				$"{error._typeText}",
+				$"{error._type}",
+				$"{error._internalType}",
+				$"{error._text}"
+			);
+			gameObject.SetActive( true );
+		}
+
+		public void SetErrorText( string text ) {
+			if ( text.IsNullOrEmpty() ) {
+				_info.text = string.Empty;
+				gameObject.SetActive( false );
+				return;
+			}
+
 			_info.text = text;
-			gameObject.SetActive( !text.IsNullOrEmpty() );
+			gameObject.SetActive( true );
 		}
 	}
 }

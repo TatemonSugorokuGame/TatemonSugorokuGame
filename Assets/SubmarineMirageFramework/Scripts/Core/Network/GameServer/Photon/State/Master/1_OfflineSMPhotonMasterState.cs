@@ -4,10 +4,14 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
+#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage.Network {
 	using Photon.Pun;
+	using Extension;
 	using Utility;
+	using Setting;
+	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ マスターサーバーが、オフライン接続の、フォトン状態クラス
@@ -22,12 +26,6 @@ namespace SubmarineMirage.Network {
 
 
 		public OfflineSMPhotonMasterState() {
-			_enterEvent.AddLast( _registerEventKey, async canceler => {
-				if ( _status == SMGameServerStatus.Connect ) {
-					await _owner._roomFSM.ChangeState<CreateRoomSMPhotonRoomState>();
-				}
-			} );
-
 			_exitEvent.AddFirst( _registerEventKey, async canceler => {
 				if ( !( _owner._roomState is DisconnectSMPhotonRoomState ) ) {
 					await _owner._roomFSM.ChangeState<DisconnectSMPhotonRoomState>();
@@ -41,11 +39,23 @@ namespace SubmarineMirage.Network {
 
 
 
-		protected override void Connect()
-			=> PhotonNetwork.OfflineMode = true;
+		protected override bool Connect() {
+			PhotonNetwork.OfflineMode = true;
+			var isSuccess = true;
+#if TestNetwork
+			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Connect )} : {isSuccess}", SMLogTag.Server );
+#endif
+			return isSuccess;
+		}
 
-		protected override void Disconnect()
-			=> PhotonNetwork.Disconnect();
+		protected override bool Disconnect() {
+			PhotonNetwork.Disconnect();
+			var isSuccess = true;
+#if TestNetwork
+			SMLog.Debug( $"{this.GetAboutName()}.{nameof( Disconnect )} : {isSuccess}", SMLogTag.Server );
+#endif
+			return isSuccess;
+		}
 	}
 }
 #endif

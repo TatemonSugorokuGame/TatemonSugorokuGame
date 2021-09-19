@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using SubmarineMirage.Service;
 using SubmarineMirage.Audio;
 using SubmarineMirage.Scene;
+using SubmarineMirage.Network;
 using SubmarineMirage.Utility;
 using SubmarineMirage.Setting;
 namespace TatemonSugoroku.Scripts {
@@ -23,7 +24,10 @@ namespace TatemonSugoroku.Scripts {
 			_enterEvent.AddLast( async canceler => {
 				var audioManager = SMServiceLocator.Resolve<SMAudioManager>();
 				audioManager.Play( SMBGS.Wind ).Forget();
-				await UTask.DontWait();
+
+				var gameServer = SMServiceLocator.Resolve<SMNetworkManager>()._gameServerModel;
+				if ( await gameServer.Disconnect() ) {
+				}
 			} );
 
 			// シーン終了

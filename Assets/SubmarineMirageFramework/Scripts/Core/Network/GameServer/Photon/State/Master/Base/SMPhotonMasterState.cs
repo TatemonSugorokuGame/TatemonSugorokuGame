@@ -8,6 +8,7 @@
 namespace SubmarineMirage.Network {
 	using System;
 	using Photon.Realtime;
+	using Extension;
 	///====================================================================================================
 	/// <summary>
 	/// ■ マスターサーバーの、フォトン状態クラス
@@ -41,7 +42,17 @@ namespace SubmarineMirage.Network {
 					return;
 
 				default:
-					OnError( $"{cause}" );
+					OnError(
+						new GameServerSMException(
+							(
+								!_owner._networkManager._isConnect	? SMGameServerErrorType.NoNetwork
+																	: SMGameServerErrorType.Other
+							),
+							cause,
+							$"サーバー接続失敗 : {this.GetAboutName()}.{nameof( OnDisconnect )}",
+							true
+						)
+					);
 					return;
 			}
 		}

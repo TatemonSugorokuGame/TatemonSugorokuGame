@@ -17,9 +17,11 @@ namespace SubmarineMirage.Network {
 	public class SMPhotonRoom : SMGameServerRoom {
 		const string PASSWORD_SPLIT_TEXT = ":password:";
 
-		[SMShow] protected override string _wrapText => PASSWORD_SPLIT_TEXT;
 
 
+		static SMPhotonRoom() {
+			s_prohibitionWords.Add( PASSWORD_SPLIT_TEXT );
+		}
 
 		public SMPhotonRoom( string name, string password, int maxPlayerCount )
 			: base( name, password, maxPlayerCount )
@@ -33,9 +35,7 @@ namespace SubmarineMirage.Network {
 			_playerCount = room.PlayerCount;
 			_maxPlayerCount = room.MaxPlayers;
 
-			_isActive =
-				!room.RemovedFromList &&
-				_playerCount != _maxPlayerCount;
+			_isActive = !room.RemovedFromList && !IsFull();
 		}
 
 		public override void Dispose() {
@@ -50,11 +50,6 @@ namespace SubmarineMirage.Network {
 			return _name == name && _password == password;
 		}
 
-		public override bool IsEqualPassword( string password ) {
-			password = password ?? string.Empty;
-			return _password == password;
-		}
-
 
 
 		public override string ToToken()
@@ -63,7 +58,20 @@ namespace SubmarineMirage.Network {
 		public static string[] ToNameAndPassword( string token ) {
 			var ns = token.Split( PASSWORD_SPLIT_TEXT );
 			var name = ns[0];
-			var password = ns.Length == 2 ? ns[1] : string.Empty;
+			var password = ns.Length > 1 ? ns[1] : string.Empty;
+
+			if ( ns.Length > 2 ) {
+				throw new GameServerSMException(
+					SMGameServerErrorType.UseProhibitionWord,
+					null,
+					string.Join( "\n",
+						$"{nameof( SMPhotonRoom )}.{nameof( ToNameAndPassword )} : 禁則単語を使用",
+						$"{nameof( token )} : {token}"
+					),
+					false
+				);
+			}
+
 			return new string[] { name, password };
 		}
 	}

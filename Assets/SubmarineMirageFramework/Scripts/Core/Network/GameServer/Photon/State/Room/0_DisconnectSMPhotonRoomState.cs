@@ -27,22 +27,24 @@ namespace SubmarineMirage.Network {
 
 			_enterEvent.AddLast( _registerEventKey, async canceler => {
 				_status = SMGameServerStatus.Disconnect;
-				_errorText = string.Empty;
+				_error = null;
 				await UTask.DontWait();
 			} );
 
 			_exitEvent.AddLast( _registerEventKey, async canceler => {
 				_status = SMGameServerStatus.Disconnect;
-				_errorText = string.Empty;
+				_error = null;
 				await UTask.DontWait();
 			} );
 		}
 
 
 
-		protected override void Connect() {}
+		protected override bool Connect()
+			=> false;
 
-		protected override void Disconnect() {}
+		protected override bool Disconnect()
+			=> false;
 	}
 }
 #endif

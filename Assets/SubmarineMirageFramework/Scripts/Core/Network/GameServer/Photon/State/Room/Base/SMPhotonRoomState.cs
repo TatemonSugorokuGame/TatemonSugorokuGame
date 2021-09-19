@@ -9,6 +9,7 @@ namespace SubmarineMirage.Network {
 	using System;
 	using UniRx;
 	using FSM;
+	using Extension;
 	using Utility;
 	///====================================================================================================
 	/// <summary>
@@ -43,13 +44,13 @@ namespace SubmarineMirage.Network {
 				await UTask.DontWait();
 			} );
 			_enterEvent.AddLast( _registerEventKey, async canceler => {
-				_owner.OnUpdatePlayer();
+				_owner._playerCountEvent.Value = _owner._playerCount;
 				await UTask.DontWait();
 			} );
 
 			_exitEvent.AddLast( _registerEventKey, async canceler => {
 				_room = null;
-				_owner.OnUpdatePlayer();
+				_owner._playerCountEvent.Value = _owner._playerCount;
 				await UTask.DontWait();
 			} );
 		}
@@ -72,8 +73,23 @@ namespace SubmarineMirage.Network {
 		/// <summary>
 		/// ● 部屋失敗（呼戻）
 		/// </summary>
-		public void OnError( short returnCode, string message )
-			=> OnError( $"{nameof( returnCode )} : {returnCode}\n{message}" );
+		public void OnError( short returnCode, string message ) {
+			OnError(
+				new GameServerSMException(
+					(
+						!_owner._networkManager._isConnect	? SMGameServerErrorType.NoNetwork
+															: SMGameServerErrorType.Other
+					),
+					null,
+					string.Join( "\n",
+						$"サーバー接続失敗 : {this.GetAboutName()}.{nameof( OnError )}",
+						$"{nameof( returnCode )} : {returnCode}",
+						$"{message}"
+					),
+					true
+				)
+			);
+		}
 	}
 }
 #endif

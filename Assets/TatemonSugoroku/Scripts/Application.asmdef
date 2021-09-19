@@ -12,6 +12,10 @@
         "UniTask.Addressables",
         "KoganeUnityLib",
         "GameDevWare.Serialization",
+        "PhotonChat",
+        "PhotonRealtime",
+        "PhotonUnityNetworking",
+        "PhotonUnityNetworking.Utilities",
         "BuildBaseSMLog",
         "SubmarineMirageFramework"
     ],

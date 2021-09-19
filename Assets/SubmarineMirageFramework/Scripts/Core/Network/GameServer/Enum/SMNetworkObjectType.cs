@@ -8,11 +8,10 @@ namespace SubmarineMirage.Network {
 
 
 
-	/// <summary>ゲームサーバーのプレイヤー状態</summary>
-	public enum SMGameServerPlayerStatus {
-		/// <summary>入室</summary>
-		Enter,
-		/// <summary>退室</summary>
-		Exit,
+	/// <summary>ネットワーク物の型</summary>
+	public enum SMNetworkObjectType {
+		World,
+		Mine,
+		Other,
 	}
 }

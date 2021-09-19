@@ -4,6 +4,7 @@ using SubmarineMirage.Base;
 using SubmarineMirage.Debug;
 using SubmarineMirage.Service;
 using SubmarineMirage.Audio;
+using SubmarineMirage.Network;
 using SubmarineMirage.Setting;
 using UniRx;
 using UnityEngine;
@@ -93,13 +94,17 @@ namespace TatemonSugoroku.Scripts.Akio
 
         private FieldModel fieldModel;
         private MotionModel motionModel;
-        SMInputManager inputManager;
+
         PlayerInternalModel[] playerModels;
         SMAudioManager audioManager;
+        SMGameServerModel gameServerModel;
+        NetworkTurnView networkTurnView;
+
+        bool _isGameEnd;
 
 
 
-        private void InitTestPlayerInternalModels()
+		private void InitTestPlayerInternalModels()
         {
             playerModels = new PlayerInternalModel[]
             {
@@ -126,10 +131,11 @@ namespace TatemonSugoroku.Scripts.Akio
             };
         }
 
-        public async UniTask DoGame(CancellationToken ct)
-        {
+        public async UniTask DoGame( CancellationToken ct ) {
             InitTestPlayerInternalModels();
-            inputManager = SMServiceLocator.Resolve<SMInputManager>();
+
+            audioManager = SMServiceLocator.Resolve<SMAudioManager>();
+            gameServerModel = SMServiceLocator.Resolve<SMNetworkManager>()._gameServerModel;
 
             fieldModel = new FieldModel();
             fieldModel.InitializeGame(playerModels.Length);
@@ -146,6 +152,9 @@ namespace TatemonSugoroku.Scripts.Akio
             System.TimeSpan wait02 = System.TimeSpan.FromSeconds(0.2);
             System.TimeSpan wait10 = System.TimeSpan.FromSeconds(1.0);
 
+            await InitializeServer( ct );
+
+
             // げーむがはじまるよ
             await GameStart(ct);
 
@@ -153,6 +162,8 @@ namespace TatemonSugoroku.Scripts.Akio
             {
                 for (int j = 0; j < 2; j++)
                 {
+                    await networkTurnView.WaitChangeTurn( j );
+
                     bool turnResult = await DoPlayerTurn(i, j, ct);
                     if (!turnResult) goto GameEnd;
 
@@ -195,7 +206,7 @@ namespace TatemonSugoroku.Scripts.Akio
             await TurnStart(pTurn, ct);
 
             // 「ドロー！」
-            int dice = await DoDice(playerId, ct);
+            var dice = await DoDice( playerId, ct );
 
             // 「オレは、12を召喚！」
             _UI.SetWalkRemaining(dice);
@@ -237,12 +248,39 @@ namespace TatemonSugoroku.Scripts.Akio
             }
         }
 
+        async UniTask InitializeServer( CancellationToken ct ) {
+            var uiError = FindObjectOfType<UINetworkError>( true );
+            gameServerModel._playerCountEvent
+                .Where( _ => !_isGameEnd )
+                .Where( _ => gameServerModel._type == SMGameServerType.Online )
+                .Where( i => i < SMNetworkManager.MAX_PLAYERS )
+                .Subscribe( _ => uiError.SetErrorText( "他のプレイヤーが、ネットワーク切断" ) )
+                .AddTo( gameObject );
+
+            GameObject go = null;
+            if ( gameServerModel._isServer ) {
+                go = gameServerModel.Instantiate( "Prefabs/NetworkTurnView" );
+            } else {
+                await UniTask.WaitWhile(
+                    () => {
+                        go = GameObject.Find( "Prefabs/NetworkTurnView" );
+                        return go == null;
+                    },
+                    PlayerLoopTiming.Update,
+                    ct
+                );
+            }
+            networkTurnView = go.GetComponent<NetworkTurnView>();
+
+            await _DiceManager.WaitSetup();
+            await networkTurnView.WaitReady();
+        }
+
         private async UniTask GameStart(CancellationToken ct)
         {
             SMLog.Debug($"ゲーム開始", SMLogTag.Scene);
             //await UniTask.Delay(System.TimeSpan.FromSeconds(5), cancellationToken: ct);
 
-            audioManager = await SMServiceLocator.WaitResolve<SMAudioManager>();
             await audioManager.Play( SMJingle.Start1 );
             await audioManager.Play( SMJingle.Start2 );
         }
@@ -261,10 +299,17 @@ namespace TatemonSugoroku.Scripts.Akio
         private async UniTask GameEnd(CancellationToken ct)
         {
             SMLog.Debug($"ゲーム終了", SMLogTag.Scene);
+            _isGameEnd = true;
+
             _UI.gameObject.SetActive(false);
             _TurnUI.ChangeTurn( null );
             _GameEndUI.SetActive( true );
             _CameraManager.SetResultCamera();
+
+            await networkTurnView.WaitReady();
+            if ( await gameServerModel.Disconnect() ) {
+            }
+
             await UniTask.Delay(System.TimeSpan.FromSeconds(1), cancellationToken: ct);
         }
 
@@ -278,11 +323,12 @@ namespace TatemonSugoroku.Scripts.Akio
 
         private async UniTask<int> DoDice(int playerId, CancellationToken ct)
         {
-            SMLog.Debug($"サイコロボタンを押してください", SMLogTag.Scene);
-            await _DiceManager.ChangeState( DiceState.Rotate );
-            await _DiceUI.WaitForClick(playerId, ct);
-            int dice = await _DiceManager.Roll();
-            
+            if ( networkTurnView._isInputTurn ) {
+                SMLog.Debug( $"サイコロボタンを押してください", SMLogTag.Scene );
+                await _DiceManager.ChangeState( DiceState.Rotate, networkTurnView._isInputTurn );
+                await _DiceUI.WaitForClick( playerId, ct );
+            }
+            var dice = await _DiceManager.Roll( networkTurnView._isInputTurn );
             SMLog.Debug($"{dice}が出ました", SMLogTag.Scene);
             return dice;
         }
@@ -309,9 +355,11 @@ namespace TatemonSugoroku.Scripts.Akio
 
                 // 触った場所を購読して、MotionModelに流す
                 // 最終結果は移動ルート受け取り用Subjectに向かってぷっしゅしてもらう
-                inputManager
-                    ._touchTileID
-                    .Subscribe(tileId => InputPosition(motionQueueSubject, motionModel, tileId))
+                networkTurnView._inputTileIDEvent
+                    .Subscribe( tileId => {
+                        networkTurnView.SendInputTileID( tileId );
+                        InputPosition( motionQueueSubject, motionModel, tileId );
+                    } )
                     .AddTo(movementDisposables);
 
                 // コマ移動
@@ -335,15 +383,16 @@ namespace TatemonSugoroku.Scripts.Akio
                 // 現在の矢印取得
                 arrow
                     .First()
-                    .Subscribe(arrowInfos => _MoveArrowManager.Place(playerId, pTurn.TileId, arrowInfos));
+                    .Subscribe( arrowInfos => _MoveArrowManager.Place( playerId, pTurn.TileId, arrowInfos ) )
+                    .AddTo( movementDisposables );
 
                 // コマ移動が起こったら、
                 // コマ座標と最新矢印情報をまとめて矢印表示に流す
                 motionModel
                     .PeekPosition
-                    .WithLatestFrom(arrow, (peek, arrow) => (peek, arrow))
-                    .Subscribe(p => _MoveArrowManager.Place(playerId, p.peek, p.arrow))
-                    .AddTo(movementDisposables);
+                    .WithLatestFrom( arrow, ( peek, arrow ) => (peek, arrow) )
+                    .Subscribe( p => _MoveArrowManager.Place( playerId, p.peek, p.arrow ) )
+                    .AddTo( movementDisposables );
 
                 // 残り歩数をUIに流す
                 motionModel
