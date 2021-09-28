@@ -7,6 +7,7 @@
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage.Network {
 	using Photon.Realtime;
+	using Photon.Pun;
 	using KoganeUnityLib;
 	using Debug;
 	///====================================================================================================
@@ -16,6 +17,15 @@ namespace SubmarineMirage.Network {
 	///====================================================================================================
 	public class SMPhotonRoom : SMGameServerRoom {
 		const string PASSWORD_SPLIT_TEXT = ":password:";
+
+		[SMShowLine] public override bool _isLock {
+			get => PhotonNetwork.CurrentRoom != null ? !PhotonNetwork.CurrentRoom.IsOpen : false;
+			set {
+				if ( PhotonNetwork.CurrentRoom != null ) {
+					PhotonNetwork.CurrentRoom.IsOpen = !value;
+				}
+			}
+		}
 
 
 
@@ -35,7 +45,7 @@ namespace SubmarineMirage.Network {
 			_playerCount = room.PlayerCount;
 			_maxPlayerCount = room.MaxPlayers;
 
-			_isActive = !room.RemovedFromList && !IsFull();
+			_isActive = !room.RemovedFromList && room.IsOpen && !IsFull();
 		}
 
 		public override void Dispose() {

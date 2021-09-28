@@ -63,6 +63,9 @@ namespace TatemonSugoroku.Scripts {
 					.Subscribe( i => {
 						UTask.Void( async () => {
 							ChangeButtonGuard( true );
+							if ( _gameServer._isServer ) {
+								_gameServer._isLockRoom = true;
+							}
 							await _audioManager.Play( SMSE.Title );
 							_sceneManager.GetFSM<MainSMScene>().ChangeState<GameSMScene>().Forget();
 						} );
@@ -111,9 +114,9 @@ namespace TatemonSugoroku.Scripts {
 						switch ( b.name ) {
 							case "ButtonOffline": {
 								_audioManager.Play( SMSE.Title ).Forget();
-								if ( await _gameServer.Connect( false, $"プレイヤー{DateTime.Now}" ) ) {
+								if ( await _gameServer.Connect( false, $"プレイヤー" ) ) {
 									if ( await _gameServer.CreateRoom(
-											$"お祭り会場 {DateTime.Now}", string.Empty, SMNetworkManager.MAX_PLAYERS )
+											$"お祭り会場", string.Empty, SMNetworkManager.MAX_PLAYERS )
 									) {
 										_sceneManager.GetFSM<MainSMScene>().ChangeState<GameSMScene>().Forget();
 									}

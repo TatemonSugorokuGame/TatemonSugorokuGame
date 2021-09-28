@@ -69,7 +69,7 @@ namespace TatemonSugoroku.Scripts {
 			switch ( _state ) {
 				case DiceState.Rotate:
 					if ( _objectType == SMNetworkObjectType.Mine ) {
-						transform.position = _firstPosition;
+						_rigidbody.position = _firstPosition;
 					}
 					break;
 			}
@@ -79,6 +79,8 @@ namespace TatemonSugoroku.Scripts {
 		}
 
 		void OnCollisionEnter( Collision collision ) {
+			if ( _state != DiceState.Roll )	{ return; }
+
 			_particle.transform.position = collision.contacts.First().point;
 			_particle.Play();
 			_audioManager?.Play( SMSE.DiceHit ).Forget();
@@ -94,16 +96,15 @@ namespace TatemonSugoroku.Scripts {
 			switch ( _state ) {
 				case DiceState.Hide:
 					gameObject.SetActive( false );
+					_rigidbody.position = _firstPosition;
 					if ( _objectType != SMNetworkObjectType.Mine )	{ return; }
-
-					transform.position = _firstPosition;
 					return;
 
 				case DiceState.Rotate:
 					gameObject.SetActive( true );
+					_rigidbody.position = _firstPosition;
 					if ( _objectType != SMNetworkObjectType.Mine )	{ return; }
 
-					transform.position = _firstPosition;
 					_rigidbody.useGravity = false;
 					_rigidbody.AddTorque(
 						new Vector3(
@@ -116,6 +117,9 @@ namespace TatemonSugoroku.Scripts {
 					return;
 
 				case DiceState.Roll:
+					if ( _diceID == 0 ) {
+						_audioManager.Play( SMSE.Dice ).Forget();
+					}
 					gameObject.SetActive( true );
 					if ( _objectType != SMNetworkObjectType.Mine )	{ return; }
 
@@ -135,23 +139,25 @@ namespace TatemonSugoroku.Scripts {
 						ForceMode.Impulse
 					);
 					await UTask.WaitWhile( _canceler, () => !_rigidbody.IsSleeping() );
+					_rigidbody.WakeUp();
+					await UTask.WaitWhile( _canceler, () => !_rigidbody.IsSleeping() );
 					await UTask.Delay( _canceler, 500 );
 					CalculateValue();
 					SendDiceValue();
 					return;
 			}
+		}
 
-			void CalculateValue() {
-				var maxY = 0f;
-				var value = 0;
-				_transforms
-					.Where( t => t.position.y > maxY )
-					.ForEach( t => {
-						maxY = t.position.y;
-						value = t.gameObject.name.ToInt();
-					} );
-				_value = value;
-			}
+		void CalculateValue() {
+			var maxY = 0f;
+			var value = 0;
+			_transforms
+				.Where( t => t.position.y > maxY )
+				.ForEach( t => {
+					maxY = t.position.y;
+					value = t.gameObject.name.ToInt();
+				} );
+			_value = value;
 		}
 
 
@@ -188,10 +194,10 @@ namespace TatemonSugoroku.Scripts {
 				case IDSendData idData:
 					_diceID = idData._diceID;
 					switch ( _diceID ) {
-						case 0:	transform.position = new Vector3( -1, 5, 0 );	break;
-						case 1:	transform.position = new Vector3( 1, 5, 0 );	break;
+						case 0:	_rigidbody.position = new Vector3( -1, 5, 0 );	break;
+						case 1:	_rigidbody.position = new Vector3( 1, 5, 0 );	break;
 					}
-					_firstPosition = transform.position;
+					_firstPosition = _rigidbody.position;
 
 					var manager = FindObjectOfType<DiceManagerView>();
 					manager.Register( this );

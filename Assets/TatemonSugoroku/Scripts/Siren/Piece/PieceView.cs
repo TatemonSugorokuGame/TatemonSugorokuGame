@@ -26,6 +26,8 @@ namespace TatemonSugoroku.Scripts {
 		Renderer[] _renderers { get; set; }
 		ParticleSystem[] _particles { get; set; }
 
+		[SerializeField] SpriteRenderer _base;
+		[SerializeField] List<Color> _colors;
 		[SerializeField] Vector3 _offset = new Vector3( 0, 0.5f, 0 );
 		[SerializeField] float _duration = 5;
 
@@ -58,8 +60,15 @@ namespace TatemonSugoroku.Scripts {
 
 			var tileID = 0;
 			switch ( playerType ) {
-				case PlayerType.Player1:	tileID = 0;								break;
-				case PlayerType.Player2:	tileID = TileManagerView.MAX_ID - 1;	break;
+				case PlayerType.Player1:
+					tileID = 0;
+					_base.color = _colors[( int )PlayerType.Player1];
+					break;
+
+				case PlayerType.Player2:
+					tileID = TileManagerView.MAX_ID - 1;
+					_base.color = _colors[( int )PlayerType.Player2];
+					break;
 			}
 			_tileID = tileID;
 			_tilePosition = TileManagerView.ToTilePosition( tileID );

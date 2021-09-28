@@ -30,8 +30,9 @@ namespace TatemonSugoroku.Scripts {
 
 			_inputManager = SMServiceLocator.Resolve<SMInputManager>();
 			_disposables.AddFirst(
-				_inputManager.GetKey( SMInputKey.Finger2 )._enablingEvent.AddLast()
+				_inputManager._updateEvent.AddLast()
 					.Where( _ => _state == GameCameraState.Input )
+					.Where( _ => _inputManager._isRotateCamera.Value )
 					.Subscribe( _ => {
 						var axis = _inputManager.GetAxis( SMInputAxis.Rotate );
 						var add = new Vector3( -axis.y, axis.x, 0 ) * 200 * Time.deltaTime;

@@ -46,8 +46,12 @@ namespace SubmarineMirage.Setting {
 		[SMShow] readonly Dictionary<SMInputSwipe, SMSwipeInputData> _swipeDatas
 			= new Dictionary<SMInputSwipe, SMSwipeInputData>();
 
+		/// <summary>タイルに接触中か？</summary>
+		public readonly ReactiveProperty<bool> _isTouchTile = new ReactiveProperty<bool>();
 		/// <summary>現在触っているタイル番号</summary>
 		public readonly ReactiveProperty<int> _touchTileID = new ReactiveProperty<int>( -1 );
+		/// <summary>カメラが回転中か？</summary>
+		public readonly ReactiveProperty<bool> _isRotateCamera = new ReactiveProperty<bool>();
 
 #region ToString
 		///------------------------------------------------------------------------------------------------

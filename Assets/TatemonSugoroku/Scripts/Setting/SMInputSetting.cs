@@ -26,26 +26,59 @@ namespace TatemonSugoroku.Scripts {
 		/// </summary>
 		void SetTouchTile() {
 			var layerManager = SMServiceLocator.Resolve<SMUnityLayerManager>();
+			var hit = new RaycastHit();
 
-			_inputManager.GetKey( SMInputKey.Finger1 )._enablingEvent.AddLast()
-				.Where( _ => !_inputManager.GetKey( SMInputKey.Finger2 )._isEnabling )
-				.Where( _ => _inputManager.GetKey( SMInputKey.Nothing )._isEnabling )
-				.Where( _ => Camera.main != null )
-				.Subscribe( _ => {
-					var ray = Camera.main.ScreenPointToRay( _inputManager.GetAxis( SMInputAxis.Mouse ) );
-					var hit = new RaycastHit();
-					var layer = layerManager.GetMask( SMUnityLayer.Tile );
-					var isHit = Physics.Raycast( ray, out hit, 100, layer );
 
-					if ( isHit ) {
-						var go = hit.collider.gameObject;
-						var tile = go.GetComponent<TileView>();
-						_inputManager._touchTileID.Value = tile._tileID;
-						return;
-					}
+			_inputManager._updateEvent.AddLast().Subscribe( _ => {
+				if (
+					!_inputManager.GetKey( SMInputKey.Finger1 )._isEnabling ||
+					!_inputManager.GetKey( SMInputKey.Nothing )._isEnabling ||
+					Camera.main == null
+				) {
+					_inputManager._isTouchTile.Value = false;
+					return;
+				}
 
+				var ray = Camera.main.ScreenPointToRay( _inputManager.GetAxis( SMInputAxis.Mouse ) );
+				var layer = layerManager.GetMask( SMUnityLayer.Tile );
+				var isHit = Physics.Raycast( ray, out hit, 100, layer );
+				_inputManager._isTouchTile.Value = isHit;
+			} );
+
+
+			_inputManager._updateEvent.AddLast().Subscribe( _ => {
+				if (
+					!_inputManager._isTouchTile.Value ||
+					_inputManager._isRotateCamera.Value
+				) {
 					_inputManager._touchTileID.Value = TileManagerView.NONE_ID;
-				} );
+					return;
+				}
+
+				var go = hit.collider.gameObject;
+				var tile = go.GetComponent<TileView>();
+				_inputManager._touchTileID.Value = tile._tileID;
+			} );
+
+
+			var isRotateCameraFinger1 = false;
+			_inputManager._updateEvent.AddLast().Subscribe( _ => {
+				if (
+					_inputManager.GetKey( SMInputKey.Finger1 )._isEnabled &&
+					!_inputManager._isTouchTile.Value &&
+					_inputManager.GetKey( SMInputKey.Nothing )._isEnabled
+				) {
+					isRotateCameraFinger1 = true;
+				}
+				if ( _inputManager.GetKey( SMInputKey.Finger1 )._isDisabled ) {
+					isRotateCameraFinger1 = false;
+				}
+
+				_inputManager._isRotateCamera.Value = (
+					isRotateCameraFinger1 ||
+					_inputManager.GetKey( SMInputKey.Finger2 )._isEnabling
+				);
+			} );
 		}
 	}
 }

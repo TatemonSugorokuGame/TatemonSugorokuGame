@@ -19,6 +19,8 @@ namespace TatemonSugoroku.Scripts {
 		SMAudioManager _audioManager { get; set; }
 		public bool _isActive { get; private set; }
 
+		readonly SMAsyncCanceler _canceler = new SMAsyncCanceler();
+
 
 
 		void Start() {
@@ -38,6 +40,10 @@ namespace TatemonSugoroku.Scripts {
 			} );
 
 			SetActive( false );
+
+			_disposables.AddFirst( () => {
+				_canceler.Dispose();
+			} );
 		}
 
 
@@ -46,6 +52,15 @@ namespace TatemonSugoroku.Scripts {
 			_isActive = isActive;
 			_group.alpha = _isActive ? 1 : 0;
 			_group.blocksRaycasts = _isActive;
+
+			if ( isActive ) {
+				UTask.Void( async () => {
+					await UTask.Delay( _canceler, 10000 );
+					SetActive( false );
+				} );
+			} else {
+				_canceler.Cancel();
+			}
 		}
 	}
 }

@@ -100,9 +100,6 @@ namespace TatemonSugoroku.Scripts {
 		public async UniTask<int> Roll( bool isInputTurn ) {
 			await UTask.DelayFrame( _canceler, 1 );
 
-			var audioManager = await SMServiceLocator.WaitResolve<SMAudioManager>();
-			audioManager.Play( SMSE.Dice ).Forget();
-
 			await ChangeState( DiceState.Roll, isInputTurn );
 			UTask.Void( async () => {
 				await UTask.Delay( _canceler, 5000 );

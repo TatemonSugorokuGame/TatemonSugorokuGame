@@ -33,6 +33,8 @@ namespace SubmarineMirage.Network {
 		[SMShow] public abstract bool _isServer		{ get; }
 		/// <summary>活動中か？</summary>
 		[SMShow] public abstract bool _isActive		{ get; set; }
+		/// <summary>鍵部屋か？</summary>
+		[SMShow] public abstract bool _isLockRoom	{ get; set; }
 
 		/// <summary>プレイヤー数のイベント</summary>
 		public readonly ReactiveProperty<int> _playerCountEvent			= new ReactiveProperty<int>();

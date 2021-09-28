@@ -6,6 +6,7 @@ using SubmarineMirage.Network;
 using SubmarineMirage.Scene;
 using SubmarineMirage.Utility;
 using SubmarineMirage.Setting;
+using TatemonSugoroku.Scripts.Akio;
 namespace TatemonSugoroku.Scripts {
 
 
@@ -19,22 +20,26 @@ namespace TatemonSugoroku.Scripts {
 		/// ● コンストラクタ
 		/// </summary>
 		public GameSMScene() {
+			SMGameServerModel gameServerModel = null;
+			MainGameManager gameManager = null;
+
 			// シーン初期化
 			_enterEvent.AddLast( async canceler => {
+				gameServerModel = SMServiceLocator.Resolve<SMNetworkManager>()._gameServerModel;
+				gameManager = Object.FindObjectOfType<MainGameManager>();
 				await UTask.DontWait();
 			} );
 
 			// シーン終了
 			_exitEvent.AddFirst( async canceler => {
-				var gameServer = SMServiceLocator.Resolve<SMNetworkManager>()._gameServerModel;
-				if ( await gameServer.Disconnect() ) {
+				gameManager.isEndGame = true;
+				if ( await gameServerModel.Disconnect() ) {
 				}
 			} );
 
 			// 更新（非同期的に実行）
 			_asyncUpdateEvent.AddLast( async canceler => {
-				var game = Object.FindObjectOfType<Akio.MainGameManager>();
-				game.DoGame( canceler.ToToken() ).Forget();
+				gameManager.DoGame( canceler.ToToken() ).Forget();
 				await UTask.DontWait();
 			} );
 

@@ -44,6 +44,7 @@ namespace TatemonSugoroku.Scripts {
 		[SerializeField] GameObject _prefab;
 		[SerializeField] public Color _disableColor = Color.gray;
 		[SerializeField] Color _enableColor = Color.yellow;
+		[SerializeField] Color _flashColor = Color.white;
 
 		public Color _color { get; private set; }
 		Tween _colorTween { get; set; }
@@ -64,14 +65,14 @@ namespace TatemonSugoroku.Scripts {
 				_views[type] = v;
 			} );
 
-			_color = _disableColor;
+			_color = _enableColor;
 			_colorTween = DOTween.To(
 				() => _color,
 				c => {
 					_color = c;
 					_views.ForEach( pair => pair.Value.UpdateColor( c ) );
 				},
-				_enableColor,
+				_flashColor,
 				1
 			)
 			.SetEase( Ease.InOutQuart )
@@ -95,22 +96,25 @@ namespace TatemonSugoroku.Scripts {
 
 
 		public void Place( int playerID, int tileID,
-							IEnumerable< KeyValuePair<MoveArrowType, MotionStatus> > arrowDatas
+							IEnumerable< KeyValuePair<MoveArrowType, MotionStatus> > arrowDatas, bool isInputTurn
 		) {
-			_audioManager.Play( SMSE.Place ).Forget();
-
 			Hide();
 			_isActive = true;
 
-			arrowDatas.ForEach( pair => {
-				var type = pair.Key;
-				var state = pair.Value;
-				var tilePosition = TileManagerView.ToTilePosition( tileID ) + ARROW_TYPE_TO_ADD_TILE_POSITION[type];
-				var data = new MoveArrowData( tilePosition, type, state );
+			if ( isInputTurn ) {
+				_audioManager.Play( SMSE.Place ).Forget();
 
-				var v = GetView( type );
-				v.Place( data );
-			} );
+				arrowDatas.ForEach( pair => {
+					var type = pair.Key;
+					var state = pair.Value;
+					var tilePosition =
+						TileManagerView.ToTilePosition( tileID ) + ARROW_TYPE_TO_ADD_TILE_POSITION[type];
+					var data = new MoveArrowData( tilePosition, type, state );
+
+					var v = GetView( type );
+					v.Place( data );
+				} );
+			}
 
 			_pieceManager.Move( playerID, tileID ).Forget();
 		}

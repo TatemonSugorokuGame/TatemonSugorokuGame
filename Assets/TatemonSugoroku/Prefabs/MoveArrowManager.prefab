@@ -46,3 +46,4 @@ MonoBehaviour:
   _prefab: {fileID: 987877843060260279, guid: 772e6beef2639bd4ea4a3e7b9cd68cde, type: 3}
   _disableColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   _enableColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _flashColor: {r: 1, g: 0.9760956, b: 0.7, a: 1}

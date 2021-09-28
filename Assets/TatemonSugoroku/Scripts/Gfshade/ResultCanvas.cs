@@ -53,7 +53,7 @@ namespace TatemonSugoroku.Scripts
             await UniTask.Delay( 500, cancellationToken: ct);
 
             var sceneManager = await SMServiceLocator.WaitResolve<SMSceneManager>();
-            sceneManager.GetFSM<MainSMScene>().ChangeState<TitleSMScene>().Forget();
+            sceneManager.GetFSM<MainSMScene>().ChangeState<NetworkSMScene>().Forget();
 
             gameObject.SetActive( false );
         }

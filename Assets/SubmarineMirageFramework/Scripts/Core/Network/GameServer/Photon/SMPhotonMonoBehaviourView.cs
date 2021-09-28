@@ -98,7 +98,7 @@ namespace SubmarineMirage.Network {
 		/// ● 情報を送受信
 		///------------------------------------------------------------------------------------------------
 		/// <summary>
-		/// ● オンラインで他者か、オフラインで自分に、情報送信
+		/// ● 情報送信
 		/// </summary>
 		public void Send<TTarget, TData>( TTarget target, TData data )
 			where TTarget : class
@@ -107,20 +107,6 @@ namespace SubmarineMirage.Network {
 #if TestNetwork
 			SMLog.Debug( $"{nameof( Send )} : {data}", SMLogTag.Server );
 #endif
-			SendOnline( target, data );
-/*
-			if ( photonView.IsMine )	{ SendOffline( data ); }
-			else						{ SendOnline( target, data ); }
-*/
-		}
-
-		/// <summary>
-		/// ● オンラインに情報送信
-		/// </summary>
-		void SendOnline<TTarget, TData>( TTarget target, TData data )
-			where TTarget : class
-			where TData : SMGameServerSendData
-		{
 			data._sendSeconds = 0;
 			data._sender = null;
 			data._view = null;
@@ -143,7 +129,7 @@ namespace SubmarineMirage.Network {
 				}
 				default: {
 					throw new InvalidOperationException( string.Join( "\n",
-						$"{this.GetAboutName()}.{nameof( SendOnline )}<{typeof( TData ).GetAboutName()}>"
+						$"{this.GetAboutName()}.{nameof( Send )}<{typeof( TData ).GetAboutName()}>"
 							+ " : キャスト失敗",
 						$"無効な型 : {nameof( target )}",
 						$"{nameof( Player )}、{nameof( RpcTarget )}のみ指定可能"
@@ -151,20 +137,6 @@ namespace SubmarineMirage.Network {
 				}
 			}
 		}
-		/*
-		/// <summary>
-		/// ● オフラインに情報送信
-		/// </summary>
-		void SendOffline<T>( T data ) where T : SMGameServerSendData {
-			var rawData = SerializerSMUtility.Serialize( data );
-			var typeName = typeof( T ).FullName;
-			Receive(
-				typeName,
-				rawData,
-				new PhotonMessageInfo( PhotonNetwork.LocalPlayer, PhotonNetwork.ServerTimestamp, photonView )
-			);
-		}
-		*/
 
 		/// <summary>
 		/// ● 情報受信

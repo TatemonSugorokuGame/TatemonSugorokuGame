@@ -25,6 +25,7 @@ namespace SubmarineMirage.Network {
 		[SMShowLine] public int _playerCount { get; set; }
 		[SMShowLine] public int _maxPlayerCount { get; protected set; }
 
+		[SMShowLine] public abstract bool _isLock { get; set; }
 		[SMShowLine] public bool _isActive { get; protected set; }
 
 

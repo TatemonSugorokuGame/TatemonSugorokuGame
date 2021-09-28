@@ -93,12 +93,14 @@ namespace TatemonSugoroku.Scripts {
 
 		void SendInputPlayer() {
 			if ( _gameServerModel._isServer ) {
-				var s = DateTime.Now.Second;
+				var s = ( int )DateTime.Now.TimeOfDay.TotalSeconds;
 				UnityEngine.Random.InitState( s );
 				var i = UnityEngine.Random.Range( 0, EnumUtils.GetLength<PlayerType>() );
 				var serverPlayer = ( PlayerType )i;
 				var otherPlayer = ( PlayerType )( ( i + 1 ) % EnumUtils.GetLength<PlayerType>() );
-				SMLog.Warning( $"{i}, {serverPlayer}, {otherPlayer}" );
+#if NetworkTurn
+				SMLog.Debug( $"順番 : {i}, {serverPlayer}, {otherPlayer}" );
+#endif
 				Send(
 					new SMGameServerSendTarget( SMGameServerSendTargetType.Server ),
 					new InputPlayerSendData( serverPlayer )

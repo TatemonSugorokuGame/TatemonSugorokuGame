@@ -101,11 +101,11 @@ namespace TatemonSugoroku.Scripts.Akio
         SMGameServerModel gameServerModel;
         [HideInInspector] public NetworkTurnView networkTurnView;
 
-        bool _isGameEnd;
+        public bool isEndGame { get; set; }
 
 
 
-		private void InitTestPlayerInternalModels()
+        private void InitTestPlayerInternalModels()
         {
             playerModels = new PlayerInternalModel[]
             {
@@ -250,15 +250,22 @@ namespace TatemonSugoroku.Scripts.Akio
         }
 
         async UniTask InitializeServer( CancellationToken ct ) {
+            if ( gameServerModel._type == SMGameServerType.Disconnect ) {
+                if ( await gameServerModel.Connect( false, $"プレイヤー" ) ) {
+                    if ( await gameServerModel.CreateRoom(
+                            $"お祭り会場", string.Empty, SMNetworkManager.MAX_PLAYERS )
+                    ) {
+                    }
+                }
+            }
+
             var uiError = FindObjectOfType<UINetworkError>( true );
-            IDisposable disposable = null;
-            disposable = gameServerModel._playerCountEvent
-                .Where( _ => !_isGameEnd )
+            gameServerModel._playerCountEvent
+                .Where( _ => !isEndGame )
                 .Where( _ => gameServerModel._type == SMGameServerType.Online )
                 .Where( i => i < SMNetworkManager.MAX_PLAYERS )
                 .Subscribe( _ => {
                     uiError.SetErrorText( "他のプレイヤーが、ネットワーク切断" );
-                    disposable.Dispose();
                 } )
                 .AddTo( gameObject );
 
@@ -294,7 +301,7 @@ namespace TatemonSugoroku.Scripts.Akio
         private async UniTask GameEnd(CancellationToken ct)
         {
             SMLog.Debug($"ゲーム終了", SMLogTag.Scene);
-            _isGameEnd = true;
+            isEndGame = true;
 
             _UI.gameObject.SetActive(false);
             _TurnUI.ChangeTurn( null );
@@ -382,7 +389,9 @@ namespace TatemonSugoroku.Scripts.Akio
                 // 現在の矢印取得
                 arrow
                     .First()
-                    .Subscribe( arrowInfos => _MoveArrowManager.Place( playerId, pTurn.TileId, arrowInfos ) )
+                    .Subscribe( arrowInfos =>
+                        _MoveArrowManager.Place( playerId, pTurn.TileId, arrowInfos, networkTurnView._isInputTurn )
+                    )
                     .AddTo( movementDisposables );
 
                 // コマ移動が起こったら、
@@ -390,7 +399,9 @@ namespace TatemonSugoroku.Scripts.Akio
                 motionModel
                     .PeekPosition
                     .WithLatestFrom( arrow, ( peek, arrow ) => (peek, arrow) )
-                    .Subscribe( p => _MoveArrowManager.Place( playerId, p.peek, p.arrow ) )
+                    .Subscribe( p =>
+                        _MoveArrowManager.Place( playerId, p.peek, p.arrow, networkTurnView._isInputTurn )
+                    )
                     .AddTo( movementDisposables );
 
                 // 残り歩数をUIに流す

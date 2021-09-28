@@ -57,6 +57,15 @@ namespace SubmarineMirage.Network {
 			get => PhotonNetwork.IsMessageQueueRunning;
 			set => PhotonNetwork.IsMessageQueueRunning = value;
 		}
+		/// <summary>鍵部屋か？</summary>
+		[SMShow] public override bool _isLockRoom {
+			get => _roomState._room?._isLock ?? false;
+			set {
+				if ( _roomState._room != null ) {
+					_roomState._room._isLock = value;
+				}
+			}
+		}
 
 		[SMShow] public SMFSM _masterFSM	{ get; private set; }
 		[SMShow] public SMFSM _roomFSM		{ get; private set; }
@@ -112,6 +121,7 @@ namespace SubmarineMirage.Network {
 					_displayLog?.Add( $"{nameof( _roomState )} : {_roomState?.ToLineString()}" );
 					_displayLog?.Add( $"{nameof( _isConnect )} : {_isConnect}" );
 					_displayLog?.Add( $"{nameof( _isServer )} : {_isServer}" );
+					_displayLog?.Add( $"{nameof( _isLockRoom )} : {_isLockRoom}" );
 				} )
 			);
 #endif
