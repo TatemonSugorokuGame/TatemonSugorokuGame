@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestNetwork
+//#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage.Network {
 	using System;
@@ -99,9 +99,7 @@ namespace SubmarineMirage.Network {
 		/// </summary>
 		public void OnConnect() {
 			_status = SMGameServerStatus.Connect;
-#if TestNetwork
 			SMLog.Debug( $"サーバー接続成功 : {this.GetAboutName()}", SMLogTag.Server );
-#endif
 		}
 
 		/// <summary>
@@ -109,9 +107,7 @@ namespace SubmarineMirage.Network {
 		/// </summary>
 		public void OnDisconnect() {
 			_status = SMGameServerStatus.Disconnect;
-#if TestNetwork
 			SMLog.Debug( $"サーバー接続切断 : {this.GetAboutName()}", SMLogTag.Server );
-#endif
 		}
 
 		/// <summary>

@@ -92,8 +92,7 @@ namespace SubmarineMirage.Network {
 				.Where( _ => GameAdvertisementManager.s_instance._isInitialized )
 */
 				.Subscribe( _ => {
-					return;
-					SMLog.Debug( $"{this.GetAboutName()} : 安定接続リフレッシュ", SMLogTag.Server );
+//					SMLog.Debug( $"{this.GetAboutName()} : 安定接続リフレッシュ", SMLogTag.Server );
 /*
 					GameAdvertisementManager.s_instance.Refresh();
 					GamePurchaseManager.s_instance.Refresh();

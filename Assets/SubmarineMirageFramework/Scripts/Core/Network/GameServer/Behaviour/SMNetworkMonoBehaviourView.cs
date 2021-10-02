@@ -10,6 +10,7 @@ namespace SubmarineMirage.Network {
 	using UniRx;
 	using KoganeUnityLib;
 	using Base;
+	using Debug;
 	///====================================================================================================
 	/// <summary>
 	/// ■ ネットワークのモノ動作のビュークラス
@@ -33,17 +34,17 @@ namespace SubmarineMirage.Network {
 		public bool _isUseTeleport	=> _isUseTeleportSetter;
 		public bool _isUseAnimator	=> _isUseAnimatorSetter;
 
-		public object _networkView	=> _view?._networkView;
-		public object _owner		=> _view?._owner;
+		public object _networkView	=> _view != null ? _view._networkView : null;
+		public object _owner		=> _view != null ? _view._owner : null;
 
-		public SMNetworkObjectType _objectType	=> _view?._objectType ?? SMNetworkObjectType.Other;
-		public int _networkID		=> _view?._networkID ?? -1;
-		public int _ownerID			=> _view?._ownerID ?? -1;
-		public string _ownerName	=> _view?._ownerName ?? string.Empty;
+		public SMNetworkObjectType _objectType	=> _view != null ? _view._objectType : SMNetworkObjectType.Other;
+		public int _networkID		=> _view != null ? _view._networkID : -1;
+		public int _ownerID			=> _view != null ? _view._ownerID : -1;
+		public string _ownerName	=> _view != null ? _view._ownerName : string.Empty;
 
-		public Subject< List<object> > _sendStreamEvent		=> _view?._sendStreamEvent;
-		public Subject< List<object> > _receiveStreamEvent	=> _view?._receiveStreamEvent;
-		public Subject<SMGameServerSendData> _receiveEvent	=> _view?._receiveEvent;
+		public Subject< List<object> > _sendStreamEvent		=> _view != null ? _view._sendStreamEvent : null;
+		public Subject< List<object> > _receiveStreamEvent	=> _view != null ? _view._receiveStreamEvent : null;
+		public Subject<SMGameServerSendData> _receiveEvent	=> _view != null ? _view._receiveEvent : null;
 
 		///------------------------------------------------------------------------------------------------
 		/// ● 生成、削除
@@ -51,7 +52,12 @@ namespace SubmarineMirage.Network {
 		protected override void Awake() {
 #if PHOTON_UNITY_NETWORKING
 			_view = GetComponent<SMPhotonMonoBehaviourView>();
+			_disposables.AddFirst( () => {
+				_view.Dispose();
+				_view = null;
+			} );
 #endif
+
 			base.Awake();
 		}
 
@@ -66,7 +72,9 @@ namespace SubmarineMirage.Network {
 			where TTarget : class
 			where TData : SMGameServerSendData
 		{
-			_view?.Send( target, data );
+			if ( _view == null )	{ return; }
+
+			_view.Send( target, data );
 		}
 
 		///------------------------------------------------------------------------------------------------

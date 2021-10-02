@@ -1,11 +1,10 @@
-#define TestDice
+//#define TestDice
 using System.Linq;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using UniRx;
 using KoganeUnityLib;
 using SubmarineMirage;
-using SubmarineMirage.Base;
 using SubmarineMirage.Service;
 using SubmarineMirage.Audio;
 using SubmarineMirage.Network;

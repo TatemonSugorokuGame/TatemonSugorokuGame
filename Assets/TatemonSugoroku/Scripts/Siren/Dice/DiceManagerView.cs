@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
@@ -8,11 +7,8 @@ using KoganeUnityLib;
 using SubmarineMirage;
 using SubmarineMirage.Base;
 using SubmarineMirage.Service;
-using SubmarineMirage.Audio;
 using SubmarineMirage.Network;
-using SubmarineMirage.Extension;
 using SubmarineMirage.Utility;
-using SubmarineMirage.Setting;
 using SubmarineMirage.Debug;
 namespace TatemonSugoroku.Scripts {
 
@@ -49,7 +45,10 @@ namespace TatemonSugoroku.Scripts {
 			}
 
 			_disposables.AddFirst( () => {
+				_views.Clear();
+
 				_totalEvent.Dispose();
+				_state.Dispose();
 				_canceler.Dispose();
 			} );
 		}

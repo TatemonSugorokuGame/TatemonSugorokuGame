@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestNetwork
+//#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage.Network {
 	using System;
@@ -282,16 +282,16 @@ namespace SubmarineMirage.Network {
 					option.Receivers = ReceiverGroup.All;
 					break;
 				case SMGameServerSendTargetType.AllByNetwork:
-#if TestNetwork
-					SMLog.Warning(
-						string.Join( "\n",
-							$"{this.GetAboutName()}.{nameof( Send )} : 変換を妥協",
-							$"未対応 : {SMGameServerSendTargetType.AllByNetwork}",
-							$"矯正 : {SMGameServerSendTargetType.All}"
-						),
-						SMLogTag.Server
-					);
-#endif
+					if ( SMDebugManager.IS_DEVELOP ) {
+						SMLog.Warning(
+							string.Join( "\n",
+								$"{this.GetAboutName()}.{nameof( Send )} : 変換を妥協",
+								$"未対応 : {SMGameServerSendTargetType.AllByNetwork}",
+								$"矯正 : {SMGameServerSendTargetType.All}"
+							),
+							SMLogTag.Server
+						);
+					}
 					option.Receivers = ReceiverGroup.All;
 					break;
 				case SMGameServerSendTargetType.Server:

@@ -132,7 +132,7 @@ namespace SubmarineMirage.Network {
 						$"{this.GetAboutName()}.{nameof( Send )}<{typeof( TData ).GetAboutName()}>"
 							+ " : キャスト失敗",
 						$"無効な型 : {nameof( target )}",
-						$"{nameof( Player )}、{nameof( RpcTarget )}のみ指定可能"
+						$"{nameof( SMGameServerSendTarget )}, {nameof( Player )}, {nameof( RpcTarget )}のみ指定可能"
 					) );
 				}
 			}

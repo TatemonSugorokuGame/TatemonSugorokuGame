@@ -4,7 +4,7 @@
 //		Released under the MIT License :
 //			https://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity/blob/master/LICENSE
 //---------------------------------------------------------------------------------------------------------
-#define TestNetwork
+//#define TestNetwork
 #if PHOTON_UNITY_NETWORKING
 namespace SubmarineMirage.Network {
 	using System.Collections.Generic;

@@ -113,7 +113,7 @@ namespace TatemonSugoroku.Scripts {
 
 						switch ( b.name ) {
 							case "ButtonOffline": {
-								_audioManager.Play( SMSE.Title ).Forget();
+								await _audioManager.Play( SMSE.Title );
 								if ( await _gameServer.Connect( false, $"プレイヤー" ) ) {
 									if ( await _gameServer.CreateRoom(
 											$"お祭り会場", string.Empty, SMNetworkManager.MAX_PLAYERS )

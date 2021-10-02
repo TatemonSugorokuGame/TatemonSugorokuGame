@@ -261,9 +261,9 @@ namespace TatemonSugoroku.Scripts.Akio
 
             var uiError = FindObjectOfType<UINetworkError>( true );
             gameServerModel._playerCountEvent
-                .Where( _ => !isEndGame )
-                .Where( _ => gameServerModel._type == SMGameServerType.Online )
                 .Where( i => i < SMNetworkManager.MAX_PLAYERS )
+                .Where( _ => gameServerModel._type == SMGameServerType.Online )
+                .Where( _ => !isEndGame )
                 .Subscribe( _ => {
                     uiError.SetErrorText( "他のプレイヤーが、ネットワーク切断" );
                 } )
