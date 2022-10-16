@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 61417877}
   - component: {fileID: 61417876}
   m_Layer: 5
-  m_Name: 3
+  m_Name: Logo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -149,18 +149,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 61417874}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children: []
-  m_Father: {fileID: 336971123}
-  m_RootOrder: 2
+  m_Father: {fileID: 2036477995}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -12080}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 203, y: 149}
-  m_Pivot: {x: 0.5, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &61417876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,6 +208,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 336971123}
+  - component: {fileID: 336971124}
+  - component: {fileID: 336971125}
   m_Layer: 5
   m_Name: Texts
   m_TagString: Untagged
@@ -228,15 +230,56 @@ RectTransform:
   m_Children:
   - {fileID: 1094579131}
   - {fileID: 1915923781}
-  - {fileID: 61417875}
+  - {fileID: 1991280488}
+  - {fileID: 2036477995}
   m_Father: {fileID: 1592940497}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -1080}
-  m_SizeDelta: {x: 1920, y: 1080}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &336971124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 336971122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 1
+  m_Spacing: 40
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
+--- !u!114 &336971125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 336971122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 2
 --- !u!1 &747348179
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,6 +394,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _topText: {fileID: 336971123}
+  _headlineText: {fileID: 1094579133}
+  _normalText: {fileID: 1915923783}
 --- !u!1 &866167099
 GameObject:
   m_ObjectHideFlags: 0
@@ -428,8 +473,9 @@ GameObject:
   - component: {fileID: 1094579131}
   - component: {fileID: 1094579134}
   - component: {fileID: 1094579133}
+  - component: {fileID: 1094579132}
   m_Layer: 5
-  m_Name: 1
+  m_Name: Headline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -449,11 +495,25 @@ RectTransform:
   m_Father: {fileID: 336971123}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -30}
-  m_SizeDelta: {x: -60, y: 2670}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 910, y: 0}
+  m_SizeDelta: {x: 1820, y: 217.7243}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &1094579132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1094579130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 0
 --- !u!114 &1094579133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -476,20 +536,18 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 40
+    m_FontSize: 70
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 300
-    m_Alignment: 1
+    m_Alignment: 7
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "<size=70>\u958B\u767A\u8005</size>\r\n\r\n\u4F01\u753B\u7ACB\u6848\r\nkonata\r\n\r\nUI\u30D7\u30ED\u30B0\u30E9\u30E0\u3001\u5168\u4F53\u8ABF\u6574\u30D7\u30ED\u30B0\u30E9\u30E0\r\n\u68EE\u5F71\r\n\r\n3D\u30D7\u30ED\u30B0\u30E9\u30E0\u3001\u30D5\u30EC\u30FC\u30E0\u30EF\u30FC\u30AF\u904B\u7528\r\n\u546A\u6B4C\u4EBA\u9B5A\r\n\r\n\u30DE\u30B9\u8A08\u7B97\u30D7\u30ED\u30B0\u30E9\u30E0\r\n\u30A2\u30AD\u30AA\r\n\r\n\u30B0\u30E9\u30D5\u30A3\u30C3\u30AF\u30C7\u30B6\u30A4\u30F3\u3001\u30EB\u30FC\u30EB\u76E3\u4FEE\r\n\u8C37\u6D25\u3000\u30E6\u30A6\u30A4\u30C1\u30ED\u30A6\r\n\r\n\r\n\r\n<size=70>\u753B\u50CF\u7D20\u6750</size>\r\n\r\n\u9B5A\u6D25\u5E02\u30A4\u30E1\u30FC\u30B8\u30AD\u30E3\u30E9\u30AF\u30BF\u30FC\u300C\u30DF\u30E9\u305F\u3093\u300D\r\nhttps://www.city.uozu.toyama.jp/guide/svGuideDtl.aspx?servno=4192\r\n\r\nUOZU\u30B2\u30FC\u30E0\u30B8\u30E3\u30E0\u63D0\u4F9B\u7D20\u6750\r\nhttps://detail.uozugame.com/\r\n\r\n\r\n\r\n<size=70>\u30A8\u30D5\u30A7\u30AF\u30C8\u7D20\u6750</size>\r\n\r\nParticle
-    Collection SKJ 2016_Free samples\r\nhttps://assetstore.unity.com/packages/vfx/particles/particle-collection-skj-2016-free-samples-72399\r\n\r\nCartoon
-    FX Free\r\nhttps://assetstore.unity.com/packages/vfx/particles/cartoon-fx-free-109565\r\n\r\n\r\n\r\n<size=70>\u97F3\u7D20\u6750</size>\r\n\r\nDOVA-SYNDROME\r\nhttps://dova-s.jp/\r\n\r\n\u52B9\u679C\u97F3\u30E9\u30DC\r\nhttps://soundeffect-lab.info/\r\n\r\n\u7121\u6599\u52B9\u679C\u97F3\u3067\u904A\u307C\u3046\uFF01\r\nhttps://taira-komori.jpn.org/\r\n\r\n\u30CE\u30BF\u306E\u68EE\r\nhttp://notanomori.net/\r\n\r\n\r\n\r\n<size=70>\u30D7\u30ED\u30B0\u30E9\u30E0\u7D20\u6750</size>"
+  m_Text: "\u30D7\u30ED\u30B0\u30E9\u30E0\u7D20\u6750"
 --- !u!222 &1094579134
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -789,8 +847,9 @@ GameObject:
   - component: {fileID: 1915923781}
   - component: {fileID: 1915923784}
   - component: {fileID: 1915923783}
+  - component: {fileID: 1915923782}
   m_Layer: 5
-  m_Name: 2
+  m_Name: Normal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -810,11 +869,25 @@ RectTransform:
   m_Father: {fileID: 336971123}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -2700}
-  m_SizeDelta: {x: -60, y: 8300}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 910, y: 0}
+  m_SizeDelta: {x: 1820, y: 0}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &1915923782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1915923780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!114 &1915923783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -848,7 +921,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\n---------------------------------------------------------------------------------------------------------\r\n\u25BD
+  m_Text: "---------------------------------------------------------------------------------------------------------\r\n\u25BD
     DOTween (v1.2.320) (DOTween License)\r\nhttp://dotween.demigiant.com/index.php\r\n---------------------------------------------------------------------------------------------------------\r\nDOTween
     License\r\nCopyright (c) 2014 Daniele Giardini - Demigiant\r\n\r\nNon-legalese
     summary\r\nYou can freely use DOTween in both commercial and non-commercial projects.\r\nYou
@@ -882,85 +955,7 @@ MonoBehaviour:
     FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
     COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
     IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\r\n\r\n\r\n---------------------------------------------------------------------------------------------------------\r\n\u25BD
-    msgpack-unity3d (2019/5/9) (MIT License)\r\nhttps://github.com/deniszykov/msgpack-unity3d\r\n---------------------------------------------------------------------------------------------------------\r\nThe
-    MIT License (MIT)\r\n\r\nCopyright (c) 2016 Denis Zykov, GameDevWare.com\r\n\r\nPermission
-    is hereby granted, free of charge, to any person obtaining a copy of this software
-    and associated documentation files (the \"\"Software\"\"), to deal in the Software
-    without restriction, including without limitation the rights to use, copy, modify,
-    merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-    to permit persons to whom the Software is furnished to do so, subject to the
-    following conditions:\r\n\r\nThe above copyright notice and this permission notice
-    shall be included in all copies or substantial portions of the Software.\r\n\r\nTHE
-    SOFTWARE IS PROVIDED \"\"AS IS\"\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-    FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-    IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\r\n\r\n\r\n---------------------------------------------------------------------------------------------------------\r\n\u25BD
-    KoganeUnityLib (2019/11/20) (MIT License)\r\nhttps://github.com/baba-s/kogane-unity-lib\r\n---------------------------------------------------------------------------------------------------------\r\nMIT
-    License\r\n\r\nCopyright (c) 2019 baba_s\r\n\r\nPermission is hereby granted,
-    free of charge, to any person obtaining a copy of this software and associated
-    documentation files (the \"\"Software\"\"), to deal in the Software without restriction,
-    including without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to permit persons
-    to whom the Software is furnished to do so, subject to the following conditions:\r\n\r\nThe
-    above copyright notice and this permission notice shall be included in all copies
-    or substantial portions of the Software.\r\n\r\nTHE SOFTWARE IS PROVIDED \"\"AS
-    IS\"\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-    TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
-    OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-    IN THE SOFTWARE.\r\n\r\n\r\n---------------------------------------------------------------------------------------------------------\r\n\u25BD
-    UniRx (Ver 7.1.0) (MIT License)\r\nhttps://github.com/neuecc/UniRx\r\n---------------------------------------------------------------------------------------------------------\r\nThe
-    MIT License (MIT)\r\n\r\nCopyright (c) 2018 Yoshifumi Kawai\r\n\r\nPermission
-    is hereby granted, free of charge, to any person obtaining a copy\r\nof this
-    software and associated documentation files (the \"\"Software\"\"), to deal\r\nin
-    the Software without restriction, including without limitation the rights\r\nto
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell\r\ncopies
-    of the Software, and to permit persons to whom the Software is\r\nfurnished to
-    do so, subject to the following conditions:\r\n\r\nThe above copyright notice
-    and this permission notice shall be included in all\r\ncopies or substantial
-    portions of the Software.\r\n\r\nTHE SOFTWARE IS PROVIDED \"\"AS IS\"\", WITHOUT
-    WARRANTY OF ANY KIND, EXPRESS OR\r\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE
-    WARRANTIES OF MERCHANTABILITY,\r\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE\r\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-    DAMAGES OR OTHER\r\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-    ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-    DEALINGS IN THE\r\nSOFTWARE.\r\n\r\n\r\n---------------------------------------------------------------------------------------------------------\r\n\u25BD
-    UniTask (Ver.2.0.24) (MIT License)\r\nhttps://github.com/Cysharp/UniTask\r\n---------------------------------------------------------------------------------------------------------\r\nThe
-    MIT License (MIT)\r\n\r\nCopyright (c) 2019 Yoshifumi Kawai / Cysharp, Inc.\r\n\r\nPermission
-    is hereby granted, free of charge, to any person obtaining a copy\r\nof this
-    software and associated documentation files (the \"\"Software\"\"), to deal\r\nin
-    the Software without restriction, including without limitation the rights\r\nto
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell\r\ncopies
-    of the Software, and to permit persons to whom the Software is\r\nfurnished to
-    do so, subject to the following conditions:\r\n\r\nThe above copyright notice
-    and this permission notice shall be included in all\r\ncopies or substantial
-    portions of the Software.\r\n\r\nTHE SOFTWARE IS PROVIDED \"\"AS IS\"\", WITHOUT
-    WARRANTY OF ANY KIND, EXPRESS OR\r\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE
-    WARRANTIES OF MERCHANTABILITY,\r\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE\r\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-    DAMAGES OR OTHER\r\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-    ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-    DEALINGS IN THE\r\nSOFTWARE.\r\n\r\n\r\n---------------------------------------------------------------------------------------------------------\r\n\u25BD
-    Submarine Mirage Framework for Unity (Version 0.1) (MIT License)\r\nhttps://github.com/FromSeabedOfReverie/SubmarineMirageFrameworkForUnity\r\n---------------------------------------------------------------------------------------------------------\r\nMIT
-    License\r\n\r\nCopyright (c) 2020 \u5922\u60F3\u6D77\u306E\u6C34\u5E95\u3088\u308A(from
-    Seabed of Reverie)\r\n\r\nPermission is hereby granted, free of charge, to any
-    person obtaining a copy\r\nof this software and associated documentation files
-    (the \"\"Software\"\"), to deal\r\nin the Software without restriction, including
-    without limitation the rights\r\nto use, copy, modify, merge, publish, distribute,
-    sublicense, and/or sell\r\ncopies of the Software, and to permit persons to whom
-    the Software is\r\nfurnished to do so, subject to the following conditions:\r\n\r\nThe
-    above copyright notice and this permission notice shall be included in all\r\ncopies
-    or substantial portions of the Software.\r\n\r\nTHE SOFTWARE IS PROVIDED \"\"AS
-    IS\"\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\r\nIMPLIED, INCLUDING BUT NOT
-    LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\r\nFITNESS FOR A PARTICULAR PURPOSE
-    AND NONINFRINGEMENT. IN NO EVENT SHALL THE\r\nAUTHORS OR COPYRIGHT HOLDERS BE
-    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\r\nLIABILITY, WHETHER IN AN ACTION OF
-    CONTRACT, TORT OR OTHERWISE, ARISING FROM,\r\nOUT OF OR IN CONNECTION WITH THE
-    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\r\nSOFTWARE."
+    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
 --- !u!222 &1915923784
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -969,3 +964,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1915923780}
   m_CullTransparentMesh: 1
+--- !u!1 &1991280487
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1991280488}
+  m_Layer: 5
+  m_Name: Space
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1991280488
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991280487}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 336971123}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1820, y: 609}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &2036477994
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2036477995}
+  m_Layer: 5
+  m_Name: Space
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2036477995
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036477994}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 61417875}
+  m_Father: {fileID: 336971123}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1820, y: 1080}
+  m_Pivot: {x: 0.5, y: 0.5}

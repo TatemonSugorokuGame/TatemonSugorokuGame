@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/TatemonSugoroku/Scenes/Opening.unity
+    guid: fd13c2a4039c5b9409cb6d6efc8232fc
+  - enabled: 1
     path: Assets/TatemonSugoroku/Scenes/Title.unity
     guid: 9cd1eea21fddc074d81d90400b560ea2
   - enabled: 1

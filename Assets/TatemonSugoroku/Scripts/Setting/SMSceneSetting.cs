@@ -28,6 +28,7 @@ namespace TatemonSugoroku.Scripts {
 						typeof( UnknownSMScene ),
 
 						// たてもんすごろくのシーン
+						typeof( OpeningSMScene ),
 						typeof( TitleSMScene ),
 						typeof( CreditSMScene ),
 						typeof( NetworkSMScene ),

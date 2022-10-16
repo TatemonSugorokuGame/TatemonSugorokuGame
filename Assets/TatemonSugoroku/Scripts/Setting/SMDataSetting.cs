@@ -33,21 +33,25 @@ namespace TatemonSugoroku.Scripts {
 					SMDataSettingType.Server,
 					new List<IBaseSMDataManager> {
 					}
-				}, /*{
+				}, {
 					// マスターデータを登録
 					SMDataSettingType.Master,
 					new List<IBaseSMDataManager> {
 						// サンプルのアイテムデータ
-						new SMCSVDataManager<string, SampleItemData>(
-							"", "SampleItem", SMFileLocation.Resource, 1 ),
-					}
-				}, */{
-					// マスターデータを登録
-					SMDataSettingType.Master,
-					new List<IBaseSMDataManager> {
-						// サンプルのアイテムデータ
+//						new SMCSVDataManager<string, SampleItemData>(
+//							"", "SampleItem", SMFileLocation.Resource, 1 ),
+						// 操作説明のデータ
 						new SMCSVDataManager<int, SetsumeiItemData>(
 							"", "SetsumeiItem", SMFileLocation.Resource, 1 ),
+						// オープニングデータ
+						new SMCSVDataManager<int, OpeningData>(
+							"", "Opening", SMFileLocation.Resource, 1 ),
+						// オープニングキャラクターデータ
+						new SMCSVDataManager<string, OpeningCharacterData>(
+							"", "OpeningCharacter", SMFileLocation.Resource, 1 ),
+						// クレジットデータ
+						new SMCSVDataManager<int, CreditData>(
+							"", "Credit", SMFileLocation.Resource, 1 ),
 					}
 				},
 			};
